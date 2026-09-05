@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "760157601362",
+    "project_id": "bumbba-bfc7a",
+    "storage_bucket": "bumbba-bfc7a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:760157601362:android:83d7dc4875f612a8f4298b",
+        "android_client_info": {
+          "package_name": "com.example.bmbb_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB__4Fyb-9mu_8Q_ebZh46F2ZgfoBMsYno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

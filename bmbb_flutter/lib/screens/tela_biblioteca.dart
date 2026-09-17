@@ -6,21 +6,17 @@ import 'tela_historia.dart';
 class TelaBiblioteca extends StatelessWidget {
   const TelaBiblioteca({super.key});
 
-  static const List<Color> _coresCard = [
-    Colors.orange,
-    Colors.green,
-    Colors.blue,
-    Colors.pink,
-    Colors.purple,
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           'Biblioteca de Histórias',
-          style: TextStyle(color: Color(0xFFBA149A), fontSize: 24.0),
+          style: TextStyle(
+            color: Color(0xFFBA149A),
+            fontSize: 24.0,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -46,6 +42,7 @@ class TelaBiblioteca extends StatelessWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 16.0,
                 crossAxisSpacing: 16.0,
+                childAspectRatio: 0.8,
               ),
               itemCount: docs.length,
               itemBuilder: (context, index) {
@@ -54,9 +51,7 @@ class TelaBiblioteca extends StatelessWidget {
                   docs[index].data() as Map<String, dynamic>,
                 );
 
-                final cor = _coresCard[index % _coresCard.length];
-
-                return _criarQuadrado(context, livro, cor);
+                return _criarCardLivro(context, livro);
               },
             ),
           );
@@ -65,35 +60,49 @@ class TelaBiblioteca extends StatelessWidget {
     );
   }
 
-  Widget _criarQuadrado(BuildContext context, Livro livro, Color cor) {
-    return Material(
-      color: cor,
-      borderRadius: BorderRadius.circular(16.0),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TelaHistoria(livro: livro),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(16.0),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              livro.titulo,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
+  Widget _criarCardLivro(BuildContext context, Livro livro) {
+    return Column(
+      children: [
+        Expanded(
+          child: Material(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(20.0),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TelaHistoria(livro: livro),
+                  ),
+                );
+              },
+              child: livro.capaUrl.isNotEmpty
+                  ? Image.network(
+                livro.capaUrl,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
+              )
+                  : const Center(child: Icon(Icons.menu_book, color: Colors.grey)),
             ),
           ),
         ),
-      ),
+        const SizedBox(height: 8.0),
+        Text(
+          livro.titulo,
+          style: const TextStyle(
+            color: Color(0xFFBA149A),
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 }

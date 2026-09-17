@@ -1,6 +1,7 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'options/firebase_options.dart'; // Se estiver na pasta 'lib/'
+import 'options/firebase_options.dart';
 import 'screens/tela_biblioteca.dart';
 
 void main() async {
@@ -18,9 +19,14 @@ class MeuApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp( // <-- REMOVIDO O 'const' DAQUI
       debugShowCheckedModeBanner: false,
-      home: TelaBiblioteca(),
+      theme: ThemeData(
+        textTheme: GoogleFonts.fredokaTextTheme(
+          Theme.of(context).textTheme,
+        ),
+      ),
+      home: const TelaBiblioteca(),
     );
   }
 }

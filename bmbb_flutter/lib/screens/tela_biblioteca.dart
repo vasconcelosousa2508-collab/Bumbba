@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/livro.dart';
 import 'tela_historia.dart';
+import 'tela_idade.dart';
 
 class TelaBiblioteca extends StatelessWidget {
   const TelaBiblioteca({super.key});
@@ -11,14 +12,37 @@ class TelaBiblioteca extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Biblioteca de Histórias',
+          'Biblioteca',
           style: TextStyle(
             color: Color(0xFFBA149A),
             fontSize: 24.0,
             fontWeight: FontWeight.bold,
           ),
         ),
-      ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TelaIdade(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFBA149A),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              icon: const Icon(Icons.keyboard_arrow_down, size: 18),
+              label: const Text('Idade'),                  // Texto do botão
+            ),
+          ),
+        ],      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('livros').snapshots(),
         builder: (context, snapshot) {

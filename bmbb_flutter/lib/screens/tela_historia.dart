@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/livro.dart';
+import '../widgets/atividades/multipla_escolha.dart';
 
 class TelaHistoria extends StatelessWidget {
   final Livro livro;
@@ -24,18 +25,48 @@ class TelaHistoria extends StatelessWidget {
           style: GoogleFonts.fredoka(
             color: corRosa,
             fontSize: 22.0,
-            fontWeight: FontWeight.w500, // Menos pesado que o bold tradicional
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
       body: SafeArea(
-        child: Padding(
+        child: livro.blocos.isNotEmpty
+            ? ListView.separated(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          itemCount: livro.blocos.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 24.0),
+          itemBuilder: (context, index) {
+            final bloco = livro.blocos[index];
+
+            if (bloco.tipo == 'texto_imagem') {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  bloco.dados['texto'] ?? '',
+                  style: GoogleFonts.fredoka(
+                    fontSize: 20,
+                    height: 1.6,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.justify,
+                ),
+              );
+            }
+
+            if (bloco.tipo == 'multipla_escolha') {
+              return WidgetMultiplaEscolha(dados: bloco.dados);
+            }
+
+            return const SizedBox.shrink();
+          },
+        )
+            : Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: SingleChildScrollView(
             child: Text(
-              livro.historia,
+              livro.historiaTexto,
               style: GoogleFonts.fredoka(
-                fontSize: 20, // Fonte bem maior para facilitar a leitura das crianças
+                fontSize: 20,
                 height: 1.6,
                 color: Colors.black87,
               ),

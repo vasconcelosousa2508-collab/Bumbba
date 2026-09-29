@@ -79,7 +79,7 @@ class _TelaBibliotecaState extends State {
           doc.data(),
           faixaEtaria: _faixaSelecionada,
         ))
-            .where((livro) => livro.historia.isNotEmpty)
+            .where((livro) => livro.temConteudo)
             .toList();
 
         if (livros.isEmpty) {

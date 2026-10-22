@@ -1,10 +1,73 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class WidgetMultiplaEscolha extends StatelessWidget {
   final Map dados;
 
   const WidgetMultiplaEscolha({super.key, required this.dados});
+
+  void _exibirFeedback(BuildContext context, bool acertou) {
+    const Color corRosa = Color(0xFFBA149A);
+
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      barrierColor: Colors.transparent,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          width: double.infinity,
+          color: acertou ? const Color(0xFF7EC6CC) : const Color(0xFFFA8772),
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Texto do Aviso
+              Text(
+                acertou ? 'Muito bem! Você acertou!' : 'Ops! Tente novamente.',
+                style: const TextStyle(
+                  fontSize: 22,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+
+              // Botão
+              SizedBox(
+                height: 58,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: corRosa,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context); // Fecha o aviso
+                    if (acertou) {
+                      // Ação para continuar
+                    }
+                  },
+                  child: Text(
+                    acertou ? 'CONTINUAR' : 'TENTAR NOVAMENTE',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +85,7 @@ class WidgetMultiplaEscolha extends StatelessWidget {
         children: [
           Text(
             pergunta,
-            style: GoogleFonts.fredoka(
+            style: const TextStyle(
               fontSize: 24,
               color: corRosa,
               fontWeight: FontWeight.w500,
@@ -44,23 +107,11 @@ class WidgetMultiplaEscolha extends StatelessWidget {
                 ),
                 onPressed: () {
                   final bool acertou = (index == respostaCerta);
-
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: acertou ? Colors.green : Colors.red,
-                      content: Text(
-                        acertou ? 'Muito bem! Você acertou!' : ' Ops! Tente novamente.',
-                        style: GoogleFonts.fredoka(fontSize: 18),
-                        textAlign: TextAlign.center,
-                      ),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
+                  _exibirFeedback(context, acertou);
                 },
                 child: Text(
                   opcoes[index].toString(),
-                  style: GoogleFonts.fredoka(fontSize: 20),
+                  style: const TextStyle(fontSize: 20),
                 ),
               ),
             );

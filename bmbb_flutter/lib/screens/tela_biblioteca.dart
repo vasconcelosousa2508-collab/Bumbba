@@ -61,6 +61,7 @@ class _TelaBibliotecaState extends State {
       stream: FirebaseFirestore.instance.collection('livros').snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
+          print('ERRO DO FIRESTORE: ${snapshot.error}');
           return const Center(child: Text('Erro ao carregar dados'));
         }
         if (snapshot.connectionState == ConnectionState.waiting) {

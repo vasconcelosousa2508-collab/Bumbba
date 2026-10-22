@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/material.dart';
+
 import '../models/livro.dart';
+
 import '../widgets/atividades/multipla_escolha.dart';
+import '../widgets/atividades/ordenar_elementos.dart';
 
 class TelaHistoria extends StatelessWidget {
   final Livro livro;
@@ -57,6 +60,10 @@ class TelaHistoria extends StatelessWidget {
               return WidgetMultiplaEscolha(dados: bloco.dados);
             }
 
+            if (bloco.tipo == 'ordenar_elementos') {
+              return WidgetOrdenarElementos(dados: bloco.dados);
+            }
+
             return const SizedBox.shrink();
           },
         )
@@ -71,6 +78,36 @@ class TelaHistoria extends StatelessWidget {
                 color: Colors.black87,
               ),
               textAlign: TextAlign.justify,
+            ),
+          ),
+        ),
+      ),
+      // BOTÃO
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          child: SizedBox(
+            width: double.infinity,
+            height: 58,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: corRosa,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                elevation: 0,
+              ),
+              child: Text(
+                'Concluir História',
+                style: GoogleFonts.fredoka(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ),
         ),

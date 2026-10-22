@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'componentes_atividade.dart';
 
 class WidgetMultiplaEscolha extends StatelessWidget {
   final Map dados;
@@ -8,9 +9,7 @@ class WidgetMultiplaEscolha extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color corRosa = Color(0xFFBA149A);
-
-    final String pergunta = dados['pergunta'] ?? '';
+    final String instrucao = dados['instrucao'] ?? dados['pergunta'] ?? '';
     final List opcoes = dados['opcoes'] ?? [];
     final int respostaCerta = dados['resposta_certa'] ?? 0;
 
@@ -20,15 +19,7 @@ class WidgetMultiplaEscolha extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            pergunta,
-            style: GoogleFonts.fredoka(
-              fontSize: 24,
-              color: corRosa,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          TextoInstrucao(texto: instrucao),
           const SizedBox(height: 32),
           ...List.generate(opcoes.length, (index) {
             return Padding(
@@ -44,18 +35,14 @@ class WidgetMultiplaEscolha extends StatelessWidget {
                 ),
                 onPressed: () {
                   final bool acertou = (index == respostaCerta);
-
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: acertou ? Colors.green : Colors.red,
-                      content: Text(
-                        acertou ? 'Muito bem! Você acertou!' : ' Ops! Tente novamente.',
-                        style: GoogleFonts.fredoka(fontSize: 18),
-                        textAlign: TextAlign.center,
-                      ),
-                      duration: const Duration(seconds: 2),
-                    ),
+                  exibirFeedbackPadrao(
+                    context: context,
+                    acertou: acertou,
+                    onAoFechar: () {
+                      if (acertou) {
+                        // Ação de continuar
+                      }
+                    },
                   );
                 },
                 child: Text(

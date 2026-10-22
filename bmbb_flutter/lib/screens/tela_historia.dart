@@ -1,7 +1,10 @@
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
+
 import '../models/livro.dart';
+
 import '../widgets/atividades/multipla_escolha.dart';
+import '../widgets/atividades/ordenar_elementos.dart';
 
 class TelaHistoria extends StatelessWidget {
   final Livro livro;
@@ -55,6 +58,10 @@ class TelaHistoria extends StatelessWidget {
 
             if (bloco.tipo == 'multipla_escolha') {
               return WidgetMultiplaEscolha(dados: bloco.dados);
+            }
+
+            if (bloco.tipo == 'ordenar_elementos') {
+              return WidgetOrdenarElementos(dados: bloco.dados);
             }
 
             return const SizedBox.shrink();

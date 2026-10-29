@@ -6,6 +6,7 @@ import '../models/livro.dart';
 import '../widgets/atividades/multipla_escolha.dart';
 import '../widgets/atividades/ordenar_elementos.dart';
 import '../widgets/atividades/completar.dart';
+import '../widgets/atividades/associar_imagem.dart';
 
 class TelaHistoria extends StatelessWidget {
   final Livro livro;
@@ -67,6 +68,10 @@ class TelaHistoria extends StatelessWidget {
 
             if (bloco.tipo == 'completar' || bloco.tipo == 'completar_lacuna') {
               return WidgetCompletarLacuna(dados: bloco.dados);
+            }
+
+            if (bloco.tipo == 'associar_imagem' || bloco.tipo == 'associacao') {
+              return WidgetAssociarImagem(dados: bloco.dados);
             }
 
             return const SizedBox.shrink();

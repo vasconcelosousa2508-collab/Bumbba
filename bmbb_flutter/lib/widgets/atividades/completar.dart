@@ -34,7 +34,7 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
     Color(0xFF7EC6CC), // Azul Turquesa
     Color(0xFFFA8772), // Salmão / Coral
     Color(0xFFFFD734), // Amarelo
-    Color(0xFFBA149A), // Rosa Principal
+    Color(0xFFBA149A), // Rosa / Roxo Principal
   ];
 
   @override
@@ -51,13 +51,12 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
     for (int i = 0; i < opcoesBrutas.length; i++) {
       final Color corSorteada = _paletaVibrante[random.nextInt(_paletaVibrante.length)];
       listaTemporaria.add(OpcaoLacuna(
-        id: i, // Guarda o índice original para comparar se resposta_certa for int
+        id: i, // Preserva o índice original para comparar com resposta_certa int
         texto: opcoesBrutas[i].toString(),
         corTema: corSorteada,
       ));
     }
 
-    // Embaralha as opções para apresentação no ecrã
     listaTemporaria.shuffle();
 
     setState(() {
@@ -74,34 +73,32 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
     return Colors.white;
   }
 
-  void _verificarResposta() {
-    if (_opcaoSelecionada == null) return;
+  void _selecionarEVerificar(OpcaoLacuna opcao) {
+    setState(() {
+      _opcaoSelecionada = opcao;
+    });
 
     bool acertou = false;
     final dynamic respostaCorretaBruta =
         widget.dados['resposta_certa'] ?? widget.dados['resposta_correta'];
 
     if (respostaCorretaBruta != null) {
-      // Caso 1: resposta_certa no banco é um NÚMERO (índice, ex: 1)
       if (respostaCorretaBruta is int) {
-        acertou = (_opcaoSelecionada!.id == respostaCorretaBruta);
-      }
-      // Caso 2: resposta_certa é uma STRING (ex: "A") ou número em formato texto ("1")
-      else {
+        acertou = (opcao.id == respostaCorretaBruta);
+      } else {
         final String valorBanco = respostaCorretaBruta.toString().trim().toUpperCase();
-
-        // Verifica se é um número salvo como String (ex: "1")
         final int? indiceConvertido = int.tryParse(valorBanco);
+
         if (indiceConvertido != null) {
-          acertou = (_opcaoSelecionada!.id == indiceConvertido);
+          acertou = (opcao.id == indiceConvertido);
         } else {
-          // Comparação direta de texto (ex: "A" == "A")
-          final String selecionado = _opcaoSelecionada!.texto.trim().toUpperCase();
+          final String selecionado = opcao.texto.trim().toUpperCase();
           acertou = (selecionado == valorBanco);
         }
       }
     }
 
+    // Exibe o feedback instantâneo ao clicar
     exibirFeedbackPadrao(
       context: context,
       acertou: acertou,
@@ -121,11 +118,9 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
 
     const Color corRosa = Color(0xFFBA149A);
     final String instrucao = widget.dados['instrucao'] ?? widget.dados['instrução'] ?? '';
-
-    // Suporta 'texto' (novo padrão no banco) e 'texto_com_lacuna'
     final String textoComLacuna = widget.dados['texto'] ?? widget.dados['texto_com_lacuna'] ?? '';
 
-    // Substitui o '_' pelo texto selecionado ou pela lacuna vazia
+    // Preenche a lacuna com a opção escolhida ou deixa o espaço em branco
     final String textoExibido = _opcaoSelecionada != null
         ? textoComLacuna.replaceAll('_', ' ${_opcaoSelecionada!.texto} ')
         : textoComLacuna.replaceAll('_', ' ___ ');
@@ -135,69 +130,44 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // 1. Instrução
           TextoInstrucao(texto: instrucao),
           const SizedBox(height: 24),
 
-          // Card da palavra com a lacuna + Botão Check
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 70),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: corRosa.withAlpha(100), width: 2),
-                  ),
-                  child: Text(
-                    textoExibido,
-                    style: GoogleFonts.fredoka(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF201B21),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+          // 2. Card Central com o Texto da Lacuna (agora ocupa toda a largura sem o botão de check)
+          Container(
+            width: double.infinity,
+            constraints: const BoxConstraints(minHeight: 70),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: corRosa.withAlpha(100), width: 2),
+            ),
+            child: Text(
+              textoExibido,
+              style: GoogleFonts.fredoka(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF201B21),
               ),
-              const SizedBox(width: 10),
-
-              // Botão de Check
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: corRosa,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 1,
-                  ),
-                  onPressed: _opcaoSelecionada != null ? _verificarResposta : null,
-                  child: const Icon(Icons.check, size: 28),
-                ),
-              ),
-            ],
+              textAlign: TextAlign.center,
+            ),
           ),
 
           const SizedBox(height: 32),
 
-          // Banco de opções (letras / palavras)
+          // 3. Banco de Opções (Clique direto valida a resposta)
           Wrap(
             alignment: WrapAlignment.center,
-            spacing: 8.0,
-            runSpacing: 8.0,
+            spacing: 10.0,
+            runSpacing: 10.0,
             children: _opcoes.map((opcao) {
               final bool estaSelecionado = _opcaoSelecionada?.id == opcao.id;
 
               return SizedBox(
-                height: 44,
+                height: 48,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: estaSelecionado ? Colors.white : opcao.corTema,
@@ -207,27 +177,19 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
                     side: estaSelecionado
                         ? BorderSide(color: opcao.corTema, width: 2)
                         : BorderSide.none,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
-                    minimumSize: const Size(40, 44),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                    minimumSize: const Size(44, 48),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                     elevation: estaSelecionado ? 2 : 0,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      if (estaSelecionado) {
-                        _opcaoSelecionada = null;
-                      } else {
-                        _opcaoSelecionada = opcao;
-                      }
-                    });
-                  },
+                  onPressed: () => _selecionarEVerificar(opcao),
                   child: Text(
                     opcao.texto,
                     style: GoogleFonts.fredoka(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

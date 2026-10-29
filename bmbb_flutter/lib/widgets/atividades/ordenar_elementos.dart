@@ -44,16 +44,17 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
   }
 
   void _inicializarAtividade() {
-    final List itensBrutos = widget.dados['itens'] ?? [];
+    // Busca 'opcoes' (novo padrão) e cai para 'itens' caso seja um documento legado
+    final List opcoesBrutas = widget.dados['opcoes'] ?? widget.dados['itens'] ?? [];
     final Random random = Random();
 
     List<ElementoOpcao> listaTemporaria = [];
-    for (int i = 0; i < itensBrutos.length; i++) {
+    for (int i = 0; i < opcoesBrutas.length; i++) {
       final Color corSorteada = _paletaVibrante[random.nextInt(_paletaVibrante.length)];
 
       listaTemporaria.add(ElementoOpcao(
         id: i,
-        texto: itensBrutos[i].toString(),
+        texto: opcoesBrutas[i].toString(),
         corTema: corSorteada,
       ));
     }

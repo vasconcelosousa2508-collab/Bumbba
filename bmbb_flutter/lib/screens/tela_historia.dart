@@ -7,6 +7,8 @@ import '../widgets/atividades/multipla_escolha.dart';
 import '../widgets/atividades/ordenar_elementos.dart';
 import '../widgets/atividades/completar.dart';
 import '../widgets/atividades/associar_imagem.dart';
+import '../widgets/atividades/tracar_letras.dart';
+
 
 class TelaHistoria extends StatelessWidget {
   final Livro livro;
@@ -72,6 +74,10 @@ class TelaHistoria extends StatelessWidget {
 
             if (bloco.tipo == 'associar_imagem' || bloco.tipo == 'associacao') {
               return WidgetAssociarImagem(dados: bloco.dados);
+            }
+
+            if (bloco.tipo == 'tracar' || bloco.tipo == 'tracar_letra') {
+              return WidgetTracacaoLetra(dados: bloco.dados);
             }
 
             return const SizedBox.shrink();

@@ -45,7 +45,7 @@ void exibirFeedbackPadrao({
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              acertou ? 'Muito bem! Você acertou!' : 'Ops! Tente novamente.',
+              acertou ? 'Muito bem! Você acertou!' : 'Vish! Tente novamente.',
               style: GoogleFonts.fredoka(
                 fontSize: 22,
                 color: Colors.white,

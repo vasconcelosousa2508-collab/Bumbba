@@ -17,8 +17,13 @@ class OpcaoLacuna {
 
 class WidgetCompletarLacuna extends StatefulWidget {
   final Map dados;
+  final VoidCallback? onAcerto;
 
-  const WidgetCompletarLacuna({super.key, required this.dados});
+  const WidgetCompletarLacuna({
+    super.key,
+    required this.dados,
+    this.onAcerto,
+  });
 
   @override
   State<WidgetCompletarLacuna> createState() => _WidgetCompletarLacunaState();
@@ -28,13 +33,15 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
   List<OpcaoLacuna> _opcoes = [];
   OpcaoLacuna? _opcaoSelecionada;
   bool _inicializado = false;
+  bool _concluido = false;
 
-  final List<Color> _paletaVibrante = const [
-    Color(0xFFCADD66), // Verde Lima
-    Color(0xFF7EC6CC), // Azul Turquesa
-    Color(0xFFFA8772), // Salmão / Coral
-    Color(0xFFFFD734), // Amarelo
-    Color(0xFFBA149A), // Rosa / Roxo Principal
+  // Sua paleta oficial
+  final List<Color> _paletaApp = const [
+    Color(0xFFCADD66),
+    Color(0xFF7EC6CC),
+    Color(0xFF814777),
+    Color(0xFFFA8772),
+    Color(0xFFFFD734),
   ];
 
   @override
@@ -49,14 +56,13 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
 
     List<OpcaoLacuna> listaTemporaria = [];
     for (int i = 0; i < opcoesBrutas.length; i++) {
-      final Color corSorteada = _paletaVibrante[random.nextInt(_paletaVibrante.length)];
+      final Color corSorteada = _paletaApp[random.nextInt(_paletaApp.length)];
       listaTemporaria.add(OpcaoLacuna(
-        id: i, // Preserva o índice original para comparar com resposta_certa int
+        id: i,
         texto: opcoesBrutas[i].toString(),
         corTema: corSorteada,
       ));
     }
-
     listaTemporaria.shuffle();
 
     setState(() {
@@ -66,14 +72,9 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
     });
   }
 
-  Color _corTextoParaFundo(Color fundo) {
-    if (fundo == const Color(0xFFFFD734) || fundo == const Color(0xFFCADD66)) {
-      return const Color(0xFF201B21);
-    }
-    return Colors.white;
-  }
-
   void _selecionarEVerificar(OpcaoLacuna opcao) {
+    if (_concluido) return;
+
     setState(() {
       _opcaoSelecionada = opcao;
     });
@@ -98,12 +99,14 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
       }
     }
 
-    // Exibe o feedback instantâneo ao clicar
     exibirFeedbackPadrao(
       context: context,
       acertou: acertou,
       onAoFechar: () {
-        if (!acertou) {
+        if (acertou) {
+          setState(() => _concluido = true);
+          widget.onAcerto?.call();
+        } else {
           setState(() {
             _opcaoSelecionada = null;
           });
@@ -116,87 +119,99 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
   Widget build(BuildContext context) {
     if (!_inicializado) return const SizedBox.shrink();
 
-    const Color corRosa = Color(0xFFBA149A);
     final String instrucao = widget.dados['instrucao'] ?? widget.dados['instrução'] ?? '';
     final String textoComLacuna = widget.dados['texto'] ?? widget.dados['texto_com_lacuna'] ?? '';
 
-    // Preenche a lacuna com a opção escolhida ou deixa o espaço em branco
     final String textoExibido = _opcaoSelecionada != null
         ? textoComLacuna.replaceAll('_', ' ${_opcaoSelecionada!.texto} ')
         : textoComLacuna.replaceAll('_', ' ___ ');
 
+    final Color corContainerFundo = _concluido ? const Color(0xFFFF8AE8) : Colors.white;
+    final Color corContainerBorda = _concluido ? const Color(0xFFBA149A) : const Color(0xFFE5E5E5);
+    final Color corContainerTexto = _concluido ? const Color(0xFF9C1181) : const Color(0xFF201B21);
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 1. Instrução
           TextoInstrucao(texto: instrucao),
           const SizedBox(height: 24),
 
-          // 2. Card Central com o Texto da Lacuna (agora ocupa toda a largura sem o botão de check)
-          Container(
+          // Container Central da Lacuna
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
             width: double.infinity,
-            constraints: const BoxConstraints(minHeight: 70),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            constraints: const BoxConstraints(minHeight: 80),
+            padding: const EdgeInsets.all(16),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: corContainerFundo,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: corRosa.withAlpha(100), width: 2),
+              border: Border(
+                top: BorderSide(color: corContainerBorda, width: 2),
+                left: BorderSide(color: corContainerBorda, width: 2),
+                right: BorderSide(color: corContainerBorda, width: 2),
+                bottom: BorderSide(color: corContainerBorda, width: 4),
+              ),
             ),
             child: Text(
               textoExibido,
               style: GoogleFonts.fredoka(
-                fontSize: 28,
+                fontSize: 26,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF201B21),
+                color: corContainerTexto,
               ),
               textAlign: TextAlign.center,
             ),
           ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
 
-          // 3. Banco de Opções (Clique direto valida a resposta)
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 10.0,
-            runSpacing: 10.0,
-            children: _opcoes.map((opcao) {
-              final bool estaSelecionado = _opcaoSelecionada?.id == opcao.id;
+          // Banco de Opções Coloridas
+          if (!_concluido)
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 12.0,
+              runSpacing: 12.0,
+              children: _opcoes.map((opcao) {
+                final bool estaSelecionado = _opcaoSelecionada?.id == opcao.id;
 
-              return SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: estaSelecionado ? Colors.white : opcao.corTema,
-                    foregroundColor: estaSelecionado
-                        ? opcao.corTema
-                        : _corTextoParaFundo(opcao.corTema),
-                    side: estaSelecionado
-                        ? BorderSide(color: opcao.corTema, width: 2)
-                        : BorderSide.none,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                    minimumSize: const Size(44, 48),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                // Fundo suave com a cor da paleta (baixa opacidade) e texto vibrante
+                final Color corFundo = estaSelecionado
+                    ? opcao.corTema
+                    : opcao.corTema.withOpacity(0.18);
+                final Color corTexto = estaSelecionado
+                    ? Colors.white
+                    : opcao.corTema;
+
+                return GestureDetector(
+                  onTap: () => _selecionarEVerificar(opcao),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 100),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: corFundo,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border(
+                        top: BorderSide(color: opcao.corTema, width: 2),
+                        left: BorderSide(color: opcao.corTema, width: 2),
+                        right: BorderSide(color: opcao.corTema, width: 2),
+                        bottom: BorderSide(color: opcao.corTema, width: estaSelecionado ? 2 : 4),
+                      ),
                     ),
-                    elevation: estaSelecionado ? 2 : 0,
-                  ),
-                  onPressed: () => _selecionarEVerificar(opcao),
-                  child: Text(
-                    opcao.texto,
-                    style: GoogleFonts.fredoka(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                    child: Text(
+                      opcao.texto,
+                      style: GoogleFonts.fredoka(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: corTexto,
+                      ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
+                );
+              }).toList(),
+            ),
         ],
       ),
     );

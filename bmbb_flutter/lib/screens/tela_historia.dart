@@ -1,17 +1,59 @@
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../models/livro.dart';
+import '../services/usuario_service.dart';
 
 import '../widgets/atividades/multipla_escolha.dart';
 import '../widgets/atividades/ordenar_elementos.dart';
 import '../widgets/atividades/completar.dart';
 import '../widgets/atividades/associar_imagem.dart';
 
-class TelaHistoria extends StatelessWidget {
+class TelaHistoria extends StatefulWidget {
   final Livro livro;
 
   const TelaHistoria({super.key, required this.livro});
+
+  @override
+  State<TelaHistoria> createState() => _TelaHistoriaState();
+}
+
+class _TelaHistoriaState extends State<TelaHistoria> {
+  final Set<int> _atividadesConcluidas = {};
+  final UsuarioService _usuarioService = UsuarioService();
+
+  // Conta dinamicamente apenas os blocos que são atividades
+  int get _totalAtividades {
+    return widget.livro.blocos
+        .where((bloco) => bloco.tipo != 'texto_imagem')
+        .length;
+  }
+
+  void _registrarAcerto(int indexBloco) {
+    if (!_atividadesConcluidas.contains(indexBloco)) {
+      setState(() {
+        _atividadesConcluidas.add(indexBloco);
+      });
+
+      if (_totalAtividades > 0) {
+        final double progresso = _atividadesConcluidas.length / _totalAtividades;
+
+        _usuarioService.salvarProgresso(
+          livroId: widget.livro.id,
+          faixaEtaria: '1-3', // Chave da faixa
+          progresso: progresso,
+        );
+      }
+    }
+  }
+
+  void _finalizarHistoria() {
+    _usuarioService.concluirHistoria(
+      livroId: widget.livro.id,
+      faixaEtaria: '1-3',
+    );
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +68,7 @@ class TelaHistoria extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          livro.titulo,
+          widget.livro.titulo,
           style: GoogleFonts.fredoka(
             color: corRosa,
             fontSize: 22.0,
@@ -35,13 +77,13 @@ class TelaHistoria extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: livro.blocos.isNotEmpty
+        child: widget.livro.blocos.isNotEmpty
             ? ListView.separated(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
-          itemCount: livro.blocos.length,
+          itemCount: widget.livro.blocos.length,
           separatorBuilder: (context, index) => const SizedBox(height: 24.0),
           itemBuilder: (context, index) {
-            final bloco = livro.blocos[index];
+            final bloco = widget.livro.blocos[index];
 
             if (bloco.tipo == 'texto_imagem') {
               return Padding(
@@ -59,19 +101,31 @@ class TelaHistoria extends StatelessWidget {
             }
 
             if (bloco.tipo == 'multipla_escolha') {
-              return WidgetMultiplaEscolha(dados: bloco.dados);
+              return WidgetMultiplaEscolha(
+                dados: bloco.dados,
+                onAcerto: () => _registrarAcerto(index),
+              );
             }
 
             if (bloco.tipo == 'ordenar_elementos') {
-              return WidgetOrdenarElementos(dados: bloco.dados);
+              return WidgetOrdenarElementos(
+                dados: bloco.dados,
+                onAcerto: () => _registrarAcerto(index),
+              );
             }
 
             if (bloco.tipo == 'completar' || bloco.tipo == 'completar_lacuna') {
-              return WidgetCompletarLacuna(dados: bloco.dados);
+              return WidgetCompletarLacuna(
+                dados: bloco.dados,
+                onAcerto: () => _registrarAcerto(index),
+              );
             }
 
             if (bloco.tipo == 'associar_imagem' || bloco.tipo == 'associacao') {
-              return WidgetAssociarImagem(dados: bloco.dados);
+              return WidgetAssociarImagem(
+                dados: bloco.dados,
+                onAcerto: () => _registrarAcerto(index),
+              );
             }
 
             return const SizedBox.shrink();
@@ -81,7 +135,7 @@ class TelaHistoria extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: SingleChildScrollView(
             child: Text(
-              livro.historiaTexto,
+              widget.livro.historiaTexto,
               style: GoogleFonts.fredoka(
                 fontSize: 20,
                 height: 1.6,
@@ -92,7 +146,6 @@ class TelaHistoria extends StatelessWidget {
           ),
         ),
       ),
-      // BOTÃO
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -100,9 +153,7 @@ class TelaHistoria extends StatelessWidget {
             width: double.infinity,
             height: 58,
             child: ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: _finalizarHistoria,
               style: ElevatedButton.styleFrom(
                 backgroundColor: corRosa,
                 foregroundColor: Colors.white,

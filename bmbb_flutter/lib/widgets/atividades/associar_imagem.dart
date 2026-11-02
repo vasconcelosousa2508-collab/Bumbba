@@ -17,8 +17,13 @@ class OpcaoAssociacao {
 
 class WidgetAssociarImagem extends StatefulWidget {
   final Map dados;
+  final VoidCallback? onAcerto;
 
-  const WidgetAssociarImagem({super.key, required this.dados});
+  const WidgetAssociarImagem({
+    super.key,
+    required this.dados,
+    this.onAcerto,
+  });
 
   @override
   State<WidgetAssociarImagem> createState() => _WidgetAssociarImagemState();
@@ -28,13 +33,14 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
   List<OpcaoAssociacao> _opcoes = [];
   OpcaoAssociacao? _opcaoSelecionada;
   bool _inicializado = false;
+  bool _concluido = false;
 
   final List<Color> _paletaVibrante = const [
-    Color(0xFF88C838), // Verde estilo Duolingo
-    Color(0xFF1CB0F6), // Azul
-    Color(0xFFFF4B4B), // Coral / Vermelho
-    Color(0xFFFFC800), // Amarelo
-    Color(0xFFCE82FF), // Roxo
+    Color(0xFF88C838),
+    Color(0xFF1CB0F6),
+    Color(0xFFFF4B4B),
+    Color(0xFFFFC800),
+    Color(0xFFCE82FF),
   ];
 
   @override
@@ -67,6 +73,8 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
   }
 
   void _selecionarEVerificar(OpcaoAssociacao opcao) {
+    if (_concluido) return;
+
     setState(() {
       _opcaoSelecionada = opcao;
     });
@@ -95,7 +103,10 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
       context: context,
       acertou: acertou,
       onAoFechar: () {
-        if (!acertou) {
+        if (acertou) {
+          setState(() => _concluido = true);
+          widget.onAcerto?.call();
+        } else {
           setState(() {
             _opcaoSelecionada = null;
           });
@@ -118,16 +129,14 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 1. Instrução Clean
           TextoInstrucao(texto: instrucao),
           const SizedBox(height: 24),
 
-          // 2. Elemento Central Limpo (Sem containers poluídos)
           if (textoCentral != null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Text(
-                textoCentral.toLowerCase(), // Duolingo usa caixa baixa/limpa
+                textoCentral.toLowerCase(),
                 style: GoogleFonts.fredoka(
                   fontSize: 42,
                   fontWeight: FontWeight.w700,
@@ -167,7 +176,6 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
 
           const SizedBox(height: 20),
 
-          // 3. Grid / Opções (Cards Estilo Duolingo)
           if (ehOpcoesComImagem)
             GridView.builder(
               shrinkWrap: true,
@@ -182,6 +190,14 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
               itemBuilder: (context, index) {
                 final opcao = _opcoes[index];
                 final bool estaSelecionado = _opcaoSelecionada?.id == opcao.id;
+                final bool ehCorretaEConcluida = _concluido && estaSelecionado;
+
+                final Color corFundo = ehCorretaEConcluida
+                    ? const Color(0xFFFF8AE8)
+                    : (estaSelecionado ? const Color(0xFFC9E1F0) : Colors.white);
+                final Color corBorda = ehCorretaEConcluida
+                    ? const Color(0xFFBA149A)
+                    : (estaSelecionado ? const Color(0xFF1CB0F6) : const Color(0xFFE5E5E5));
 
                 return GestureDetector(
                   onTap: () => _selecionarEVerificar(opcao),
@@ -189,28 +205,15 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
                     duration: const Duration(milliseconds: 100),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      // Fundo verde claro/suave quando selecionado, branco quando neutro
-                      color: estaSelecionado
-                          ? const Color(0xFFD7FFB8)
-                          : Colors.white,
+                      color: corFundo,
                       borderRadius: BorderRadius.circular(20),
                       border: Border(
-                        top: BorderSide(
-                          color: estaSelecionado ? const Color(0xFF84D82D) : const Color(0xFFE5E5E5),
-                          width: 2,
-                        ),
-                        left: BorderSide(
-                          color: estaSelecionado ? const Color(0xFF84D82D) : const Color(0xFFE5E5E5),
-                          width: 2,
-                        ),
-                        right: BorderSide(
-                          color: estaSelecionado ? const Color(0xFF84D82D) : const Color(0xFFE5E5E5),
-                          width: 2,
-                        ),
-                        // Efeito de relevo/3D na borda inferior
+                        top: BorderSide(color: corBorda, width: 2),
+                        left: BorderSide(color: corBorda, width: 2),
+                        right: BorderSide(color: corBorda, width: 2),
                         bottom: BorderSide(
-                          color: estaSelecionado ? const Color(0xFF84D82D) : const Color(0xFFE5E5E5),
-                          width: estaSelecionado ? 2 : 5,
+                          color: corBorda,
+                          width: estaSelecionado || ehCorretaEConcluida ? 2 : 5,
                         ),
                       ),
                     ),
@@ -227,10 +230,20 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
               },
             )
           else
-          // Opções de Texto (Cards retangulares estilo Duolingo)
             Column(
               children: _opcoes.map((opcao) {
                 final bool estaSelecionado = _opcaoSelecionada?.id == opcao.id;
+                final bool ehCorretaEConcluida = _concluido && estaSelecionado;
+
+                final Color corFundo = ehCorretaEConcluida
+                    ? const Color(0xFFFF8AE8)
+                    : (estaSelecionado ? const Color(0xFFC9E1F0) : Colors.white);
+                final Color corBorda = ehCorretaEConcluida
+                    ? const Color(0xFFBA149A)
+                    : (estaSelecionado ? const Color(0xFF1CB0F6) : const Color(0xFFE5E5E5));
+                final Color corTexto = ehCorretaEConcluida
+                    ? const Color(0xFF9C1181)
+                    : (estaSelecionado ? const Color(0xFF1CB0F6) : const Color(0xFF4B4B4B));
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
@@ -242,26 +255,15 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
                       height: 56,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: estaSelecionado
-                            ? const Color(0xFFD7FFB8)
-                            : Colors.white,
+                        color: corFundo,
                         borderRadius: BorderRadius.circular(16),
                         border: Border(
-                          top: BorderSide(
-                            color: estaSelecionado ? const Color(0xFF84D82D) : const Color(0xFFE5E5E5),
-                            width: 2,
-                          ),
-                          left: BorderSide(
-                            color: estaSelecionado ? const Color(0xFF84D82D) : const Color(0xFFE5E5E5),
-                            width: 2,
-                          ),
-                          right: BorderSide(
-                            color: estaSelecionado ? const Color(0xFF84D82D) : const Color(0xFFE5E5E5),
-                            width: 2,
-                          ),
+                          top: BorderSide(color: corBorda, width: 2),
+                          left: BorderSide(color: corBorda, width: 2),
+                          right: BorderSide(color: corBorda, width: 2),
                           bottom: BorderSide(
-                            color: estaSelecionado ? const Color(0xFF84D82D) : const Color(0xFFE5E5E5),
-                            width: estaSelecionado ? 2 : 4,
+                            color: corBorda,
+                            width: estaSelecionado || ehCorretaEConcluida ? 2 : 4,
                           ),
                         ),
                       ),
@@ -270,9 +272,7 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
                         style: GoogleFonts.fredoka(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: estaSelecionado
-                              ? const Color(0xFF58A700)
-                              : const Color(0xFF4B4B4B),
+                          color: corTexto,
                         ),
                       ),
                     ),

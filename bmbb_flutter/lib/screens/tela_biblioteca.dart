@@ -151,7 +151,6 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
   }
 }
 
-// Função do modal ajustada recebendo a faixaSelecionada por parâmetro
 void _exibirModalConfirmacao(BuildContext context, Livro livro, String faixaEtaria) {
   const Color corRosa = Color(0xFFBA149A);
 
@@ -223,11 +222,14 @@ void _exibirModalConfirmacao(BuildContext context, Livro livro, String faixaEtar
                   elevation: 0,
                 ),
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context); // Fecha o modal
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TelaHistoria(livro: livro),
+                      builder: (context) => TelaHistoria(
+                        livro: livro,
+                        faixaEtaria: faixaEtaria,
+                      ),
                     ),
                   );
                 },

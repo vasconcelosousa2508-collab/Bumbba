@@ -11,8 +11,13 @@ import '../widgets/atividades/associar_imagem.dart';
 
 class TelaHistoria extends StatefulWidget {
   final Livro livro;
+  final String faixaEtaria;
 
-  const TelaHistoria({super.key, required this.livro});
+  const TelaHistoria({
+    super.key,
+    required this.livro,
+    this.faixaEtaria = '1 a 3',
+  });
 
   @override
   State<TelaHistoria> createState() => _TelaHistoriaState();
@@ -22,11 +27,37 @@ class _TelaHistoriaState extends State<TelaHistoria> {
   final Set<int> _atividadesConcluidas = {};
   final UsuarioService _usuarioService = UsuarioService();
 
-  // Conta dinamicamente apenas os blocos que são atividades
+  // Controller de rolagem e mapa de chaves para localizar as atividades pendentes
+  final ScrollController _scrollController = ScrollController();
+  final Map<int, GlobalKey> _chavesBlocos = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Mapeia uma chave única para cada bloco de atividade
+    for (int i = 0; i < widget.livro.blocos.length; i++) {
+      if (widget.livro.blocos[i].tipo != 'texto_imagem') {
+        _chavesBlocos[i] = GlobalKey();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   int get _totalAtividades {
     return widget.livro.blocos
         .where((bloco) => bloco.tipo != 'texto_imagem')
         .length;
+  }
+
+  // Retorna true quando todas as atividades foram respondidas com sucesso
+  bool get _todasConcluidas {
+    if (_totalAtividades == 0) return true;
+    return _atividadesConcluidas.length == _totalAtividades;
   }
 
   void _registrarAcerto(int indexBloco) {
@@ -40,7 +71,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
 
         _usuarioService.salvarProgresso(
           livroId: widget.livro.id,
-          faixaEtaria: '1-3', // Chave da faixa
+          faixaEtaria: widget.faixaEtaria,
           progresso: progresso,
         );
       }
@@ -48,9 +79,46 @@ class _TelaHistoriaState extends State<TelaHistoria> {
   }
 
   void _finalizarHistoria() {
+    // 1. Procura se há alguma atividade que ainda não foi concluída
+    int? primeiroIndexPendente;
+    for (int i = 0; i < widget.livro.blocos.length; i++) {
+      if (widget.livro.blocos[i].tipo != 'texto_imagem' && !_atividadesConcluidas.contains(i)) {
+        primeiroIndexPendente = i;
+        break;
+      }
+    }
+
+    // 2. Se houver pendência, avisa e rola suavemente até ela
+    if (primeiroIndexPendente != null) {
+      final keyPendente = _chavesBlocos[primeiroIndexPendente];
+      if (keyPendente?.currentContext != null) {
+        Scrollable.ensureVisible(
+          keyPendente!.currentContext!,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeInOut,
+        );
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: const Color(0xFFFA8772),
+          content: Text(
+            'Opa! Ainda tem atividade pendente!',
+            style: GoogleFonts.fredoka(fontSize: 18, color: Colors.white),
+            textAlign: TextAlign.center,
+          ),
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+      );
+      return;
+    }
+
+    // 3. Se tudo foi resolvido, conclui no Firebase e fecha a tela
     _usuarioService.concluirHistoria(
       livroId: widget.livro.id,
-      faixaEtaria: '1-3',
+      faixaEtaria: widget.faixaEtaria,
     );
     Navigator.pop(context);
   }
@@ -79,6 +147,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
       body: SafeArea(
         child: widget.livro.blocos.isNotEmpty
             ? ListView.separated(
+          controller: _scrollController,
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           itemCount: widget.livro.blocos.length,
           separatorBuilder: (context, index) => const SizedBox(height: 24.0),
@@ -100,31 +169,46 @@ class _TelaHistoriaState extends State<TelaHistoria> {
               );
             }
 
+            // Envolve as atividades com a chave para localização no scroll
+            final Key? widgetKey = _chavesBlocos[index];
+
             if (bloco.tipo == 'multipla_escolha') {
-              return WidgetMultiplaEscolha(
-                dados: bloco.dados,
-                onAcerto: () => _registrarAcerto(index),
+              return KeyedSubtree(
+                key: widgetKey,
+                child: WidgetMultiplaEscolha(
+                  dados: bloco.dados,
+                  onAcerto: () => _registrarAcerto(index),
+                ),
               );
             }
 
             if (bloco.tipo == 'ordenar_elementos') {
-              return WidgetOrdenarElementos(
-                dados: bloco.dados,
-                onAcerto: () => _registrarAcerto(index),
+              return KeyedSubtree(
+                key: widgetKey,
+                child: WidgetOrdenarElementos(
+                  dados: bloco.dados,
+                  onAcerto: () => _registrarAcerto(index),
+                ),
               );
             }
 
             if (bloco.tipo == 'completar' || bloco.tipo == 'completar_lacuna') {
-              return WidgetCompletarLacuna(
-                dados: bloco.dados,
-                onAcerto: () => _registrarAcerto(index),
+              return KeyedSubtree(
+                key: widgetKey,
+                child: WidgetCompletarLacuna(
+                  dados: bloco.dados,
+                  onAcerto: () => _registrarAcerto(index),
+                ),
               );
             }
 
             if (bloco.tipo == 'associar_imagem' || bloco.tipo == 'associacao') {
-              return WidgetAssociarImagem(
-                dados: bloco.dados,
-                onAcerto: () => _registrarAcerto(index),
+              return KeyedSubtree(
+                key: widgetKey,
+                child: WidgetAssociarImagem(
+                  dados: bloco.dados,
+                  onAcerto: () => _registrarAcerto(index),
+                ),
               );
             }
 
@@ -152,21 +236,36 @@ class _TelaHistoriaState extends State<TelaHistoria> {
           child: SizedBox(
             width: double.infinity,
             height: 58,
-            child: ElevatedButton(
-              onPressed: _finalizarHistoria,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: corRosa,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              child: ElevatedButton(
+                onPressed: _finalizarHistoria,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _todasConcluidas
+                      ? corRosa
+                      : corRosa.withAlpha(80),
+                  foregroundColor: _todasConcluidas
+                      ? Colors.white
+                      : Colors.white.withAlpha(180),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: _todasConcluidas ? 2 : 0,
                 ),
-                elevation: 0,
-              ),
-              child: Text(
-                'Concluir História',
-                style: GoogleFonts.fredoka(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Concluir História',
+                      style: GoogleFonts.fredoka(
+                        fontSize: 20,
+                        fontWeight: _todasConcluidas ? FontWeight.bold : FontWeight.w500,
+                      ),
+                    ),
+                    if (_todasConcluidas) ...[
+                      const SizedBox(width: 8),
+                    ]
+                  ],
                 ),
               ),
             ),

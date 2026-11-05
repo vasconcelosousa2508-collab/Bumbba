@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'services/auth_service.dart';
 import 'screens/tela_login.dart';
-import 'screens/tela_biblioteca.dart';
+import 'screens/tela_principal.dart'; // <--- Import atualizado aqui
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,9 +32,9 @@ class MeuApp extends StatelessWidget {
             );
           }
 
-          // Se tiver usuário logado, vai pra Biblioteca. Se não, vai pro Login.
+          // Se tiver usuário logado, abre a TelaPrincipal (que inicia na Biblioteca)
           if (snapshot.hasData) {
-            return const TelaBiblioteca();
+            return const TelaPrincipal(); // <--- Alterado de TelaBiblioteca para TelaPrincipal
           }
 
           return const TelaLogin();

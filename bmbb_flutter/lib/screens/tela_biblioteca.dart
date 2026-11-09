@@ -18,13 +18,15 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
 
   @override
   Widget build(BuildContext context) {
+    const Color corRosa = Color(0xFFBA149A);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Biblioteca',
-          style: TextStyle(
-            color: Color(0xFFBA149A),
-            fontSize: 24.0,
+          style: GoogleFonts.fredoka(
+            color: corRosa,
+            fontSize: 30.0,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -33,8 +35,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
             padding: const EdgeInsets.only(right: 16.0),
             child: ElevatedButton.icon(
               onPressed: () async {
-                final resultado = await Navigator.push(
-                  context,
+                final resultado = await Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
                     builder: (context) => const TelaIdade(),
                   ),
@@ -47,14 +48,17 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFBA149A),
+                backgroundColor: corRosa,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
               icon: const Icon(Icons.keyboard_arrow_down, size: 18),
-              label: Text('$_faixaSelecionada anos'),
+              label: Text(
+                '$_faixaSelecionada anos',
+                style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
             ),
           ),
         ],
@@ -63,7 +67,12 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
         stream: FirebaseFirestore.instance.collection('livros').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text('Erro ao carregar dados'));
+            return Center(
+              child: Text(
+                'Erro ao carregar dados',
+                style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
+              ),
+            );
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -72,7 +81,12 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
           final docs = snapshot.data!.docs;
 
           if (docs.isEmpty) {
-            return const Center(child: Text('Nenhum livro encontrado'));
+            return Center(
+              child: Text(
+                'Nenhum livro encontrado',
+                style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
+              ),
+            );
           }
 
           final livros = docs
@@ -85,8 +99,11 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
               .toList();
 
           if (livros.isEmpty) {
-            return const Center(
-              child: Text('Nenhum livro disponível para esta idade'),
+            return Center(
+              child: Text(
+                'Nenhum livro disponível para esta idade',
+                style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
+              ),
             );
           }
 
@@ -111,6 +128,8 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
   }
 
   Widget _criarCardLivro(BuildContext context, Livro livro) {
+    const Color corRosa = Color(0xFFBA149A);
+
     return Column(
       children: [
         AspectRatio(
@@ -156,6 +175,7 @@ void _exibirModalConfirmacao(BuildContext context, Livro livro, String faixaEtar
 
   showModalBottomSheet(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
@@ -222,9 +242,8 @@ void _exibirModalConfirmacao(BuildContext context, Livro livro, String faixaEtar
                   elevation: 0,
                 ),
                 onPressed: () {
-                  Navigator.pop(context); // Fecha o modal
-                  Navigator.push(
-                    context,
+                  Navigator.pop(context);
+                  Navigator.of(context, rootNavigator: true).push(
                     MaterialPageRoute(
                       builder: (context) => TelaHistoria(
                         livro: livro,

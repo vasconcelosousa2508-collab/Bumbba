@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
+import 'tela_login.dart';
 
 class TelaPerfil extends StatelessWidget {
   const TelaPerfil({super.key});
@@ -27,7 +28,16 @@ class TelaPerfil extends StatelessWidget {
             icon: const Icon(Icons.logout_rounded, color: corRosa),
             tooltip: 'Sair',
             onPressed: () async {
+              // 1. Executa o logout no Firebase e no Google Client
               await authService.sair();
+
+              // 2. Remove todas as telas empilhadas e redireciona para a TelaLogin
+              if (context.mounted) {
+                Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => const TelaLogin()),
+                      (route) => false,
+                );
+              }
             },
           ),
         ],
@@ -41,7 +51,7 @@ class TelaPerfil extends StatelessWidget {
               // Avatar temporário do usuário
               CircleAvatar(
                 radius: 50,
-                backgroundColor: corRosa.withOpacity(0.2),
+                backgroundColor: corRosa.withValues(alpha: 0.2),
                 backgroundImage: usuario?.photoURL != null ? NetworkImage(usuario!.photoURL!) : null,
                 child: usuario?.photoURL == null
                     ? const Icon(Icons.person, size: 50, color: corRosa)

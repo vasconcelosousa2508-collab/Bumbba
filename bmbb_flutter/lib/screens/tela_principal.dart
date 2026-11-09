@@ -46,11 +46,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           },
           selectedItemColor: corRosa,
           unselectedItemColor: Colors.black38,
-          selectedLabelStyle: GoogleFonts.fredoka(fontWeight: FontWeight.bold, fontSize: 13),
+          selectedLabelStyle: GoogleFonts.fredoka(fontWeight: FontWeight.normal, fontSize: 13),
           unselectedLabelStyle: GoogleFonts.fredoka(fontSize: 12),
           items: const [
             BottomNavigationBarItem(
-              icon: Icon(Icons.menu_book_rounded),
+              icon: Icon(Icons.collections_bookmark),
               label: 'Biblioteca',
             ),
             BottomNavigationBarItem(

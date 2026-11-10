@@ -14,11 +14,18 @@ class _TelaLoginState extends State<TelaLogin> {
   bool _carregando = false;
 
   Future<void> _fazerLoginGoogle() async {
+    if (_carregando) return;
+
     setState(() => _carregando = true);
     try {
-      await _authService.entrarComGoogle();
+      final res = await _authService.entrarComGoogle();
+      if (res == null && mounted) {
+        // Usuário fechou a janela do Google sem selecionar a conta
+        setState(() => _carregando = false);
+      }
     } catch (e) {
       if (mounted) {
+        setState(() => _carregando = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao fazer login: $e'),
@@ -26,8 +33,6 @@ class _TelaLoginState extends State<TelaLogin> {
           ),
         );
       }
-    } finally {
-      if (mounted) setState(() => _carregando = false);
     }
   }
 
@@ -46,7 +51,6 @@ class _TelaLoginState extends State<TelaLogin> {
             children: [
               const Spacer(),
 
-              // Logo ou Ícone lúdico de Entrada
               Container(
                 width: 120,
                 height: 120,
@@ -71,13 +75,12 @@ class _TelaLoginState extends State<TelaLogin> {
 
               const SizedBox(height: 32),
 
-              // Título com apenas "Bumbba!" em Bold
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: GoogleFonts.fredoka(
                     fontSize: 32,
-                    fontWeight: FontWeight.w400, // Peso normal para "Bem-vindo ao"
+                    fontWeight: FontWeight.w400,
                     color: corRosa,
                     height: 1.15,
                   ),
@@ -86,7 +89,7 @@ class _TelaLoginState extends State<TelaLogin> {
                     TextSpan(
                       text: 'Bumbba!',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold, // Negrito apenas aqui
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
@@ -106,7 +109,6 @@ class _TelaLoginState extends State<TelaLogin> {
 
               const Spacer(),
 
-              // Botão Entrar com Google
               SizedBox(
                 width: double.infinity,
                 height: 58,
@@ -126,15 +128,12 @@ class _TelaLoginState extends State<TelaLogin> {
                       : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Ícone do Google
-                      Image.network(
-                        'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
-                        height: 24,
-                        width: 24,
-                        errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.g_mobiledata, size: 30, color: corRosa),
+                      const Icon(
+                        Icons.g_mobiledata_rounded,
+                        size: 36,
+                        color: corRosa,
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       Text(
                         'Entrar com o Google',
                         style: GoogleFonts.fredoka(

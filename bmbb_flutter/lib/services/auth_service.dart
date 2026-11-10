@@ -13,6 +13,12 @@ class AuthService {
 
   Future<UserCredential?> entrarComGoogle() async {
     try {
+      // 1. Força a limpeza da sessão anterior do GoogleSignIn para obrigar o prompt da conta a abrir
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {}
+
+      // 2. Abre a caixa de diálogo do Google
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -35,23 +41,14 @@ class AuthService {
 
         if (!docSnap.exists) {
           await docRef.set({
-            // Dados da Conta do Pai/Mãe (Login Google)
             'email_responsavel': user.email ?? '',
             'nome_responsavel': user.displayName ?? 'Responsável',
             'foto_responsavel': user.photoURL ?? '',
             'criado_em': FieldValue.serverTimestamp(),
             'ultimo_acesso': FieldValue.serverTimestamp(),
-            'onboarding_concluido': false, // Flag crucial para acionar as telas infantis
+            'onboarding_concluido': false,
             'historias_concluidas': [],
             'historias_progresso': {},
-
-            /*
-            ===================================================================
-            'nome': user.displayName ?? 'Usuário',
-            'email': user.email ?? '',
-            'fotoUrl': user.photoURL ?? '',
-            ===================================================================
-            */
           });
         } else {
           await docRef.set({
@@ -68,7 +65,10 @@ class AuthService {
   }
 
   Future<void> sair() async {
-    await _googleSignIn.signOut();
+    try {
+      await _googleSignIn.signOut();
+      await _googleSignIn.disconnect();
+    } catch (_) {}
     await _auth.signOut();
   }
 }

@@ -3,9 +3,50 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../services/auth_service.dart';
+import 'tela_selecionar_avatar.dart';
 
 class TelaPerfil extends StatelessWidget {
   const TelaPerfil({super.key});
+
+  Widget _construirAvatar(String? avatarId, Color corRosa) {
+    if (avatarId == null || avatarId.isEmpty) {
+      return Image.asset(
+        'assets/login/bumbba-head.png',
+        fit: BoxFit.contain,
+      );
+    }
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance.collection('avatar').doc(avatarId).snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Image.asset(
+            'assets/login/bumbba-head.png',
+            fit: BoxFit.contain,
+          );
+        }
+
+        final avatarData = snapshot.data!.data() as Map<String, dynamic>?;
+        final String url = avatarData?['url'] ?? '';
+
+        if (url.isEmpty) {
+          return Image.asset(
+            'assets/login/bumbba-head.png',
+            fit: BoxFit.contain,
+          );
+        }
+
+        return Image.network(
+          url,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => Image.asset(
+            'assets/login/bumbba-head.png',
+            fit: BoxFit.contain,
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +76,6 @@ class TelaPerfil extends StatelessWidget {
             icon: const Icon(Icons.logout_rounded, color: corRosa),
             tooltip: 'Sair',
             onPressed: () async {
-              // Apenas chama o método de logout; o StreamBuilder do main.dart redesenha a TelaLogin automaticamente
               await authService.sair();
             },
           ),
@@ -50,9 +90,12 @@ class TelaPerfil extends StatelessWidget {
 
           final data = snapshot.data?.data() as Map<String, dynamic>? ?? {};
 
+          // Dados da Criança
           final String nomeCrianca = data['nome_crianca'] ?? 'Pequeno Leitor';
           final int idadeCrianca = data['idade_crianca'] ?? 0;
+          final String? avatarId = data['avatar_id'];
 
+          // Dados do Responsável
           final String nomeResponsavel = data['nome_responsavel'] ?? usuario.displayName ?? 'Responsável';
           final String emailResponsavel = data['email_responsavel'] ?? usuario.email ?? '';
 
@@ -60,45 +103,56 @@ class TelaPerfil extends StatelessWidget {
             padding: const EdgeInsets.all(24.0),
             child: Column(
               children: [
+                // Avatar da Criança (Abre a TelaSelecionarAvatar)
                 Center(
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                          border: Border.all(color: corRosa, width: 3),
-                        ),
-                        child: ClipOval(
-                          child: Image.asset(
-                            'assets/login/bumbba-head.png',
-                            fit: BoxFit.contain,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context, rootNavigator: true).push(
+                        MaterialPageRoute(
+                          builder: (context) => TelaSelecionarAvatar(
+                            uid: usuario.uid,
+                            avatarIdAtual: avatarId,
                           ),
                         ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: corRosa,
+                      );
+                    },
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.edit,
                             color: Colors.white,
-                            size: 18,
+                            border: Border.all(color: corRosa, width: 3),
+                          ),
+                          child: ClipOval(
+                            child: _construirAvatar(avatarId, corRosa),
                           ),
                         ),
-                      ),
-                    ],
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: corRosa,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
 
+                // Card: Dados da Criança
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -163,6 +217,7 @@ class TelaPerfil extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
+                // Card: Dados do Responsável
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -219,13 +274,6 @@ class TelaPerfil extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
-
-                const SizedBox(height: 28),
-                Text(
-                  'Em breve: seletor de avatares do folclore e estatísticas de leitura!',
-                  style: GoogleFonts.fredoka(fontSize: 14, color: Colors.black45),
-                  textAlign: TextAlign.center,
                 ),
               ],
             ),

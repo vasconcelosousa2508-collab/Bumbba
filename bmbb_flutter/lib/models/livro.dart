@@ -33,11 +33,18 @@ class Livro {
       final conteudoFaixa = rawHistoria[chaveFirestore];
 
       if (conteudoFaixa is List) {
-        blocosTemp = conteudoFaixa
-            .map((item) => BlocoConteudo.fromMap(Map.from(item)))
-            .toList();
-      } else if (conteudoFaixa is String) {
-        textoTemp = conteudoFaixa;
+        blocosTemp = conteudoFaixa.map((item) {
+          if (item is Map) {
+            return BlocoConteudo.fromMap(Map<String, dynamic>.from(item));
+          } else {
+            // Se algum item da lista foi salvo como String solta no banco, converte automaticamente em bloco de texto
+            return BlocoConteudo.fromMap({
+              'tipo': 'texto',
+              'conteudo': item.toString(),
+              'texto': item.toString(),
+            });
+          }
+        }).toList();
       }
     } else if (rawHistoria is String) {
       textoTemp = rawHistoria;

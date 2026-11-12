@@ -8,7 +8,7 @@ import 'tela_selecionar_avatar.dart';
 class TelaPerfil extends StatelessWidget {
   const TelaPerfil({super.key});
 
-  Widget _construirAvatar(String? avatarId, Color corRosa) {
+  Widget _construirAvatar(String? avatarId) {
     if (avatarId == null || avatarId.isEmpty) {
       return Image.asset(
         'assets/login/bumbba-head.png',
@@ -55,6 +55,7 @@ class TelaPerfil extends StatelessWidget {
 
     const Color corRosa = Color(0xFFBA149A);
     const Color corFundo = Color(0xFFFDF4FB);
+    const Color corTurquesa = Color(0xFF7BC4C4);
 
     if (usuario == null) {
       return const Scaffold(
@@ -67,7 +68,11 @@ class TelaPerfil extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Seu Perfil',
-          style: GoogleFonts.fredoka(color: corRosa, fontWeight: FontWeight.bold, fontSize: 24),
+          style: GoogleFonts.fredoka(
+            color: corRosa,
+            fontWeight: FontWeight.bold,
+            fontSize: 30,
+          ),
         ),
         backgroundColor: corFundo,
         elevation: 0,
@@ -85,7 +90,7 @@ class TelaPerfil extends StatelessWidget {
         stream: FirebaseFirestore.instance.collection('usuarios').doc(usuario.uid).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: corRosa));
           }
 
           final data = snapshot.data?.data() as Map<String, dynamic>? ?? {};
@@ -100,10 +105,10 @@ class TelaPerfil extends StatelessWidget {
           final String emailResponsavel = data['email_responsavel'] ?? usuario.email ?? '';
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
             child: Column(
               children: [
-                // Avatar da Criança (Abre a TelaSelecionarAvatar)
+                // Avatar grande centralizado com lápis no canto superior direito
                 Center(
                   child: GestureDetector(
                     onTap: () {
@@ -117,32 +122,48 @@ class TelaPerfil extends StatelessWidget {
                       );
                     },
                     child: Stack(
+                      clipBehavior: Clip.none,
                       children: [
                         Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
+                          width: 155,
+                          height: 155,
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             color: Colors.white,
-                            border: Border.all(color: corRosa, width: 3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0x18000000),
+                                blurRadius: 12,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
                           ),
                           child: ClipOval(
-                            child: _construirAvatar(avatarId, corRosa),
+                            child: _construirAvatar(avatarId),
                           ),
                         ),
                         Positioned(
-                          bottom: 0,
-                          right: 0,
+                          top: 2,
+                          right: 2,
                           child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: corRosa,
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
                               shape: BoxShape.circle,
+                              border: Border.all(color: corTurquesa, width: 3.5),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x14000000),
+                                  blurRadius: 6,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
                             ),
                             child: const Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                              size: 18,
+                              Icons.edit_rounded,
+                              color: corTurquesa,
+                              size: 20,
                             ),
                           ),
                         ),
@@ -150,72 +171,35 @@ class TelaPerfil extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
 
-                // Card: Dados da Criança
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 8,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'DADOS DA CRIANÇA',
-                        style: GoogleFonts.fredoka(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: corRosa,
-                          letterSpacing: 1.1,
-                        ),
-                      ),
-                      const Divider(height: 20),
-                      Row(
-                        children: [
-                          const Icon(Icons.face_rounded, color: corRosa, size: 28),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              nomeCrianca,
-                              style: GoogleFonts.fredoka(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          const Icon(Icons.cake_rounded, color: corRosa, size: 28),
-                          const SizedBox(width: 12),
-                          Text(
-                            '$idadeCrianca anos',
-                            style: GoogleFonts.fredoka(
-                              fontSize: 18,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                const SizedBox(height: 16),
+
+                // Nome da criança centralizado
+                Text(
+                  nomeCrianca,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.fredoka(
+                    fontSize: 32,
+                    // fontWeight: FontWeight.bold,
+                    color: corRosa,
+                    height: 1.1,
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 4),
+
+                // Idade discreta logo abaixo do nome
+                Text(
+                  '$idadeCrianca anos',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.fredoka(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black45,
+                  ),
+                ),
+
+                const SizedBox(height: 32),
 
                 // Card: Dados do Responsável
                 Container(

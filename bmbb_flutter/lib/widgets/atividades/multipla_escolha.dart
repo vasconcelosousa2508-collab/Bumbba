@@ -74,7 +74,8 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 100),
                   width: double.infinity,
-                  height: 56,
+                  constraints: const BoxConstraints(minHeight: 56),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: corFundo,
@@ -91,10 +92,12 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                   ),
                   child: Text(
                     opcoes[index].toString(),
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.fredoka(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: corTexto,
+                      height: 1.25,
                     ),
                   ),
                 ),

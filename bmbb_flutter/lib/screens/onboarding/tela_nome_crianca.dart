@@ -12,6 +12,12 @@ class TelaNomeCrianca extends StatefulWidget {
 class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
   final TextEditingController _nomeController = TextEditingController();
 
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    super.dispose();
+  }
+
   void _avancar() {
     if (_nomeController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -25,6 +31,8 @@ class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
       );
       return;
     }
+
+    FocusScope.of(context).unfocus();
 
     Navigator.push(
       context,
@@ -42,17 +50,16 @@ class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
     return Scaffold(
       backgroundColor: corFundo,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Spacer(),
-              // Imagem da cabeça do Boi Bumbá (assets/login/bumbba-head.png)
+              const SizedBox(height: 16),
               Image.asset(
                 'assets/login/bumbba-head.png',
-                width: 250,
-                height: 250,
+                width: 220,
+                height: 220,
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 24),
@@ -70,6 +77,8 @@ class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
               TextField(
                 controller: _nomeController,
                 textAlign: TextAlign.center,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _avancar(),
                 style: GoogleFonts.fredoka(fontSize: 20, color: Colors.black87),
                 decoration: InputDecoration(
                   hintText: 'Digite um nome',
@@ -91,7 +100,7 @@ class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
                   ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 36),
               SizedBox(
                 width: double.infinity,
                 height: 56,

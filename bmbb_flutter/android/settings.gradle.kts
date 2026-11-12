@@ -10,7 +10,12 @@ pluginManagement {
 
     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
 
-    repositories {
+    repositories {plugins {
+    id("dev.flutter.flutter-plugin-loader") version "1.0.0"
+    id("com.android.application") version "9.1.1" apply false
+    // mantenha as outras linhas como estão
+}
+
         google()
         mavenCentral()
         gradlePluginPortal()

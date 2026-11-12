@@ -27,18 +27,22 @@ class MeuApp extends StatelessWidget {
       ),
       home: StreamBuilder<User?>(
         stream: AuthService().authStateChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+        builder: (context, authSnapshot) {
+          if (authSnapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
 
-          // Se tiver usuário logado, verifica no Firestore se o onboarding foi concluído
-          if (snapshot.hasData) {
-            final user = snapshot.data!;
-            return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance.collection('usuarios').doc(user.uid).get(),
+          // Usuário autenticado no Firebase Auth
+          if (authSnapshot.hasData && authSnapshot.data != null) {
+            final user = authSnapshot.data!;
+
+            return StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('usuarios')
+                  .doc(user.uid)
+                  .snapshots(),
               builder: (context, docSnapshot) {
                 if (docSnapshot.connectionState == ConnectionState.waiting) {
                   return const Scaffold(
@@ -46,20 +50,26 @@ class MeuApp extends StatelessWidget {
                   );
                 }
 
-                final data = docSnapshot.data?.data() as Map<String, dynamic>?;
+                // Se o documento no Firestore ainda não existir (criando no login), aguarda
+                if (!docSnapshot.hasData || !docSnapshot.data!.exists) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                final data = docSnapshot.data!.data() as Map<String, dynamic>?;
                 final bool onboardingConcluido = data?['onboarding_concluido'] ?? false;
 
-                // Se ainda NÃO concluiu o cadastro do nome/idade da criança, vai pro Onboarding
                 if (!onboardingConcluido) {
                   return const TelaNomeCrianca();
                 }
 
-                // Se já concluiu, vai pra tela principal
                 return const TelaPrincipal();
               },
             );
           }
 
+          // Sem usuário autenticado
           return const TelaLogin();
         },
       ),

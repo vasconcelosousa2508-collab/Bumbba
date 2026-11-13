@@ -27,14 +27,12 @@ class _TelaHistoriaState extends State<TelaHistoria> {
   final Set<int> _atividadesConcluidas = {};
   final UsuarioService _usuarioService = UsuarioService();
 
-  // Controller de rolagem e mapa de chaves para localizar as atividades pendentes
   final ScrollController _scrollController = ScrollController();
   final Map<int, GlobalKey> _chavesBlocos = {};
 
   @override
   void initState() {
     super.initState();
-    // Mapeia uma chave única para cada bloco de atividade
     for (int i = 0; i < widget.livro.blocos.length; i++) {
       if (widget.livro.blocos[i].tipo != 'texto_imagem') {
         _chavesBlocos[i] = GlobalKey();
@@ -67,7 +65,6 @@ class _TelaHistoriaState extends State<TelaHistoria> {
         .length;
   }
 
-  // Retorna true quando todas as atividades foram respondidas com sucesso
   bool get _todasConcluidas {
     if (_totalAtividades == 0) return true;
     return _atividadesConcluidas.length >= _totalAtividades;
@@ -93,7 +90,6 @@ class _TelaHistoriaState extends State<TelaHistoria> {
   }
 
   void _finalizarHistoria() {
-    // 1. Procura se há alguma atividade que ainda não foi concluída
     int? primeiroIndexPendente;
     for (int i = 0; i < widget.livro.blocos.length; i++) {
       if (widget.livro.blocos[i].tipo != 'texto_imagem' && !_atividadesConcluidas.contains(i)) {
@@ -102,7 +98,6 @@ class _TelaHistoriaState extends State<TelaHistoria> {
       }
     }
 
-    // 2. Se houver pendência, avisa e rola suavemente até ela
     if (primeiroIndexPendente != null) {
       final keyPendente = _chavesBlocos[primeiroIndexPendente];
       if (keyPendente?.currentContext != null) {
@@ -129,7 +124,6 @@ class _TelaHistoriaState extends State<TelaHistoria> {
       return;
     }
 
-    // 3. Se tudo foi resolvido, conclui no Firebase e fecha a tela
     _usuarioService.concluirHistoria(
       livroId: widget.livro.id,
       faixaEtaria: widget.faixaEtaria,
@@ -184,14 +178,15 @@ class _TelaHistoriaState extends State<TelaHistoria> {
               );
             }
 
-            // Envolve as atividades com a chave para localização no scroll
             final Key? widgetKey = _chavesBlocos[index];
+            final bool jaFeita = _atividadesConcluidas.contains(index);
 
             if (bloco.tipo == 'multipla_escolha') {
               return KeyedSubtree(
                 key: widgetKey,
                 child: WidgetMultiplaEscolha(
                   dados: bloco.dados,
+                  jaConcluido: jaFeita,
                   onAcerto: () => _registrarAcerto(index),
                 ),
               );
@@ -202,6 +197,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
                 key: widgetKey,
                 child: WidgetOrdenarElementos(
                   dados: bloco.dados,
+                  jaConcluido: jaFeita,
                   onAcerto: () => _registrarAcerto(index),
                 ),
               );
@@ -212,6 +208,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
                 key: widgetKey,
                 child: WidgetCompletarLacuna(
                   dados: bloco.dados,
+                  jaConcluido: jaFeita,
                   onAcerto: () => _registrarAcerto(index),
                 ),
               );
@@ -222,6 +219,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
                 key: widgetKey,
                 child: WidgetAssociarImagem(
                   dados: bloco.dados,
+                  jaConcluido: jaFeita,
                   onAcerto: () => _registrarAcerto(index),
                 ),
               );

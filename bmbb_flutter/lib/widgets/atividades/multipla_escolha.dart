@@ -5,11 +5,13 @@ import 'componentes_atividade.dart';
 class WidgetMultiplaEscolha extends StatefulWidget {
   final Map dados;
   final VoidCallback? onAcerto;
+  final bool jaConcluido;
 
   const WidgetMultiplaEscolha({
     super.key,
     required this.dados,
     this.onAcerto,
+    this.jaConcluido = false,
   });
 
   @override
@@ -18,7 +20,27 @@ class WidgetMultiplaEscolha extends StatefulWidget {
 
 class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
   int? _opcaoSelecionada;
-  bool _concluido = false;
+  late bool _concluido;
+
+  @override
+  void initState() {
+    super.initState();
+    _concluido = widget.jaConcluido;
+    if (_concluido) {
+      _opcaoSelecionada = widget.dados['resposta_certa'] ?? 0;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant WidgetMultiplaEscolha oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.jaConcluido && !_concluido) {
+      setState(() {
+        _concluido = true;
+        _opcaoSelecionada = widget.dados['resposta_certa'] ?? 0;
+      });
+    }
+  }
 
   void _selecionarEVerificar(int index, int respostaCerta) {
     if (_concluido) return;

@@ -18,11 +18,13 @@ class OpcaoAssociacao {
 class WidgetAssociarImagem extends StatefulWidget {
   final Map dados;
   final VoidCallback? onAcerto;
+  final bool jaConcluido;
 
   const WidgetAssociarImagem({
     super.key,
     required this.dados,
     this.onAcerto,
+    this.jaConcluido = false,
   });
 
   @override
@@ -33,7 +35,7 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
   List<OpcaoAssociacao> _opcoes = [];
   OpcaoAssociacao? _opcaoSelecionada;
   bool _inicializado = false;
-  bool _concluido = false;
+  late bool _concluido;
 
   final List<Color> _paletaVibrante = const [
     Color(0xFF88C838),
@@ -46,7 +48,45 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
   @override
   void initState() {
     super.initState();
+    _concluido = widget.jaConcluido;
     _inicializarAtividade();
+  }
+
+  @override
+  void didUpdateWidget(covariant WidgetAssociarImagem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.jaConcluido && !_concluido) {
+      setState(() {
+        _concluido = true;
+        _selecionarRespostaCorretaAutomaticamente();
+      });
+    }
+  }
+
+  bool _ehOpcaoCorreta(OpcaoAssociacao opcao) {
+    final dynamic respostaCorretaBruta =
+        widget.dados['resposta_certa'] ?? widget.dados['resposta_correta'];
+    if (respostaCorretaBruta == null) return false;
+
+    if (respostaCorretaBruta is int) {
+      return opcao.id == respostaCorretaBruta;
+    } else {
+      final String valorBanco = respostaCorretaBruta.toString().trim().toUpperCase();
+      final int? indiceConvertido = int.tryParse(valorBanco);
+      if (indiceConvertido != null) {
+        return opcao.id == indiceConvertido;
+      }
+      return opcao.valor.trim().toUpperCase() == valorBanco;
+    }
+  }
+
+  void _selecionarRespostaCorretaAutomaticamente() {
+    for (final op in _opcoes) {
+      if (_ehOpcaoCorreta(op)) {
+        _opcaoSelecionada = op;
+        break;
+      }
+    }
   }
 
   void _inicializarAtividade() {
@@ -69,6 +109,9 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
       _opcoes = listaTemporaria;
       _opcaoSelecionada = null;
       _inicializado = true;
+      if (_concluido) {
+        _selecionarRespostaCorretaAutomaticamente();
+      }
     });
   }
 
@@ -79,25 +122,7 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
       _opcaoSelecionada = opcao;
     });
 
-    bool acertou = false;
-    final dynamic respostaCorretaBruta =
-        widget.dados['resposta_certa'] ?? widget.dados['resposta_correta'];
-
-    if (respostaCorretaBruta != null) {
-      if (respostaCorretaBruta is int) {
-        acertou = (opcao.id == respostaCorretaBruta);
-      } else {
-        final String valorBanco = respostaCorretaBruta.toString().trim().toUpperCase();
-        final int? indiceConvertido = int.tryParse(valorBanco);
-
-        if (indiceConvertido != null) {
-          acertou = (opcao.id == indiceConvertido);
-        } else {
-          final String selecionado = opcao.valor.trim().toUpperCase();
-          acertou = (selecionado == valorBanco);
-        }
-      }
-    }
+    final bool acertou = _ehOpcaoCorreta(opcao);
 
     exibirFeedbackPadrao(
       context: context,
@@ -131,7 +156,6 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
         children: [
           TextoInstrucao(texto: instrucao),
           const SizedBox(height: 24),
-
           if (textoCentral != null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -173,9 +197,7 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
                 ),
               ),
             ),
-
           const SizedBox(height: 20),
-
           if (ehOpcoesComImagem)
             GridView.builder(
               shrinkWrap: true,
@@ -252,7 +274,8 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 100),
                       width: double.infinity,
-                      height: 56,
+                      constraints: const BoxConstraints(minHeight: 56),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: corFundo,
@@ -269,10 +292,12 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
                       ),
                       child: Text(
                         opcao.valor,
+                        textAlign: TextAlign.center,
                         style: GoogleFonts.fredoka(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: corTexto,
+                          height: 1.25,
                         ),
                       ),
                     ),

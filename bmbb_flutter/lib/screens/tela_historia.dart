@@ -40,6 +40,19 @@ class _TelaHistoriaState extends State<TelaHistoria> {
         _chavesBlocos[i] = GlobalKey();
       }
     }
+    _carregarProgressoSalvo();
+  }
+
+  Future<void> _carregarProgressoSalvo() async {
+    final concluidas = await _usuarioService.carregarAtividadesConcluidas(
+      livroId: widget.livro.id,
+      faixaEtaria: widget.faixaEtaria,
+    );
+    if (mounted && concluidas.isNotEmpty) {
+      setState(() {
+        _atividadesConcluidas.addAll(concluidas);
+      });
+    }
   }
 
   @override
@@ -57,7 +70,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
   // Retorna true quando todas as atividades foram respondidas com sucesso
   bool get _todasConcluidas {
     if (_totalAtividades == 0) return true;
-    return _atividadesConcluidas.length == _totalAtividades;
+    return _atividadesConcluidas.length >= _totalAtividades;
   }
 
   void _registrarAcerto(int indexBloco) {
@@ -67,12 +80,13 @@ class _TelaHistoriaState extends State<TelaHistoria> {
       });
 
       if (_totalAtividades > 0) {
-        final double progresso = _atividadesConcluidas.length / _totalAtividades;
+        final double progresso = (_atividadesConcluidas.length / _totalAtividades).clamp(0.0, 1.0);
 
         _usuarioService.salvarProgresso(
           livroId: widget.livro.id,
           faixaEtaria: widget.faixaEtaria,
           progresso: progresso,
+          atividadesConcluidas: _atividadesConcluidas,
         );
       }
     }
@@ -119,6 +133,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
     _usuarioService.concluirHistoria(
       livroId: widget.livro.id,
       faixaEtaria: widget.faixaEtaria,
+      atividadesConcluidas: _atividadesConcluidas,
     );
     Navigator.pop(context);
   }

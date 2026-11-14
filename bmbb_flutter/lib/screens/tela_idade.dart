@@ -3,15 +3,35 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TelaIdade extends StatefulWidget {
-  const TelaIdade({super.key});
+  final String faixaInicial;
+
+  const TelaIdade({
+    super.key,
+    this.faixaInicial = '1 a 3',
+  });
 
   @override
-  State createState() => _TelaIdadeState();
+  State<TelaIdade> createState() => _TelaIdadeState();
 }
 
-class _TelaIdadeState extends State {
-  final List _itens = ['1 a 3', '4 a 6', '7 a 10'];
-  int _indexSelecionado = 0;
+class _TelaIdadeState extends State<TelaIdade> {
+  final List<String> _itens = ['1 a 3', '4 a 6', '7 a 10'];
+  late int _indexSelecionado;
+  late FixedExtentScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    final idx = _itens.indexOf(widget.faixaInicial);
+    _indexSelecionado = idx >= 0 ? idx : 0;
+    _scrollController = FixedExtentScrollController(initialItem: _indexSelecionado);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +40,8 @@ class _TelaIdadeState extends State {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: corRosa),
-        backgroundColor: Colors.transparent, // Garante fundo transparente
-        scrolledUnderElevation: 0, // Impede que a AppBar mude de cor ao rolar a roleta
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
       ),
       body: SafeArea(
         child: Column(
@@ -35,6 +55,7 @@ class _TelaIdadeState extends State {
                   height: 180,
                   width: 180,
                   child: CupertinoPicker(
+                    scrollController: _scrollController,
                     itemExtent: 60,
                     onSelectedItemChanged: (int index) {
                       setState(() {

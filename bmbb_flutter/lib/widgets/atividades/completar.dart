@@ -18,11 +18,13 @@ class OpcaoLacuna {
 class WidgetCompletarLacuna extends StatefulWidget {
   final Map dados;
   final VoidCallback? onAcerto;
+  final bool jaConcluido;
 
   const WidgetCompletarLacuna({
     super.key,
     required this.dados,
     this.onAcerto,
+    this.jaConcluido = false,
   });
 
   @override
@@ -33,9 +35,8 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
   List<OpcaoLacuna> _opcoes = [];
   OpcaoLacuna? _opcaoSelecionada;
   bool _inicializado = false;
-  bool _concluido = false;
+  late bool _concluido;
 
-  // Sua paleta oficial
   final List<Color> _paletaApp = const [
     Color(0xFFCADD66),
     Color(0xFF7EC6CC),
@@ -47,7 +48,45 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
   @override
   void initState() {
     super.initState();
+    _concluido = widget.jaConcluido;
     _inicializarAtividade();
+  }
+
+  @override
+  void didUpdateWidget(covariant WidgetCompletarLacuna oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.jaConcluido && !_concluido) {
+      setState(() {
+        _concluido = true;
+        _selecionarRespostaCorretaAutomaticamente();
+      });
+    }
+  }
+
+  bool _ehOpcaoCorreta(OpcaoLacuna opcao) {
+    final dynamic respostaCorretaBruta =
+        widget.dados['resposta_certa'] ?? widget.dados['resposta_correta'];
+    if (respostaCorretaBruta == null) return false;
+
+    if (respostaCorretaBruta is int) {
+      return opcao.id == respostaCorretaBruta;
+    } else {
+      final String valorBanco = respostaCorretaBruta.toString().trim().toUpperCase();
+      final int? indiceConvertido = int.tryParse(valorBanco);
+      if (indiceConvertido != null) {
+        return opcao.id == indiceConvertido;
+      }
+      return opcao.texto.trim().toUpperCase() == valorBanco;
+    }
+  }
+
+  void _selecionarRespostaCorretaAutomaticamente() {
+    for (final op in _opcoes) {
+      if (_ehOpcaoCorreta(op)) {
+        _opcaoSelecionada = op;
+        break;
+      }
+    }
   }
 
   void _inicializarAtividade() {
@@ -69,6 +108,9 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
       _opcoes = listaTemporaria;
       _opcaoSelecionada = null;
       _inicializado = true;
+      if (_concluido) {
+        _selecionarRespostaCorretaAutomaticamente();
+      }
     });
   }
 
@@ -79,25 +121,7 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
       _opcaoSelecionada = opcao;
     });
 
-    bool acertou = false;
-    final dynamic respostaCorretaBruta =
-        widget.dados['resposta_certa'] ?? widget.dados['resposta_correta'];
-
-    if (respostaCorretaBruta != null) {
-      if (respostaCorretaBruta is int) {
-        acertou = (opcao.id == respostaCorretaBruta);
-      } else {
-        final String valorBanco = respostaCorretaBruta.toString().trim().toUpperCase();
-        final int? indiceConvertido = int.tryParse(valorBanco);
-
-        if (indiceConvertido != null) {
-          acertou = (opcao.id == indiceConvertido);
-        } else {
-          final String selecionado = opcao.texto.trim().toUpperCase();
-          acertou = (selecionado == valorBanco);
-        }
-      }
-    }
+    final bool acertou = _ehOpcaoCorreta(opcao);
 
     exibirFeedbackPadrao(
       context: context,
@@ -137,8 +161,6 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
         children: [
           TextoInstrucao(texto: instrucao),
           const SizedBox(height: 24),
-
-          // Container Central da Lacuna
           AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             width: double.infinity,
@@ -165,10 +187,7 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
               textAlign: TextAlign.center,
             ),
           ),
-
           const SizedBox(height: 24),
-
-          // Banco de Opções Coloridas
           if (!_concluido)
             Wrap(
               alignment: WrapAlignment.center,
@@ -177,7 +196,6 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
               children: _opcoes.map((opcao) {
                 final bool estaSelecionado = _opcaoSelecionada?.id == opcao.id;
 
-                // Fundo suave com a cor da paleta (baixa opacidade) e texto vibrante
                 final Color corFundo = estaSelecionado
                     ? opcao.corTema
                     : opcao.corTema.withOpacity(0.18);

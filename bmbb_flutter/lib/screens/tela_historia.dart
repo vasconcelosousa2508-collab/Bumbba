@@ -27,18 +27,29 @@ class _TelaHistoriaState extends State<TelaHistoria> {
   final Set<int> _atividadesConcluidas = {};
   final UsuarioService _usuarioService = UsuarioService();
 
-  // Controller de rolagem e mapa de chaves para localizar as atividades pendentes
   final ScrollController _scrollController = ScrollController();
   final Map<int, GlobalKey> _chavesBlocos = {};
 
   @override
   void initState() {
     super.initState();
-    // Mapeia uma chave única para cada bloco de atividade
     for (int i = 0; i < widget.livro.blocos.length; i++) {
       if (widget.livro.blocos[i].tipo != 'texto_imagem') {
         _chavesBlocos[i] = GlobalKey();
       }
+    }
+    _carregarProgressoSalvo();
+  }
+
+  Future<void> _carregarProgressoSalvo() async {
+    final concluidas = await _usuarioService.carregarAtividadesConcluidas(
+      livroId: widget.livro.id,
+      faixaEtaria: widget.faixaEtaria,
+    );
+    if (mounted && concluidas.isNotEmpty) {
+      setState(() {
+        _atividadesConcluidas.addAll(concluidas);
+      });
     }
   }
 
@@ -54,10 +65,9 @@ class _TelaHistoriaState extends State<TelaHistoria> {
         .length;
   }
 
-  // Retorna true quando todas as atividades foram respondidas com sucesso
   bool get _todasConcluidas {
     if (_totalAtividades == 0) return true;
-    return _atividadesConcluidas.length == _totalAtividades;
+    return _atividadesConcluidas.length >= _totalAtividades;
   }
 
   void _registrarAcerto(int indexBloco) {
@@ -67,19 +77,19 @@ class _TelaHistoriaState extends State<TelaHistoria> {
       });
 
       if (_totalAtividades > 0) {
-        final double progresso = _atividadesConcluidas.length / _totalAtividades;
+        final double progresso = (_atividadesConcluidas.length / _totalAtividades).clamp(0.0, 1.0);
 
         _usuarioService.salvarProgresso(
           livroId: widget.livro.id,
           faixaEtaria: widget.faixaEtaria,
           progresso: progresso,
+          atividadesConcluidas: _atividadesConcluidas,
         );
       }
     }
   }
 
   void _finalizarHistoria() {
-    // 1. Procura se há alguma atividade que ainda não foi concluída
     int? primeiroIndexPendente;
     for (int i = 0; i < widget.livro.blocos.length; i++) {
       if (widget.livro.blocos[i].tipo != 'texto_imagem' && !_atividadesConcluidas.contains(i)) {
@@ -88,7 +98,6 @@ class _TelaHistoriaState extends State<TelaHistoria> {
       }
     }
 
-    // 2. Se houver pendência, avisa e rola suavemente até ela
     if (primeiroIndexPendente != null) {
       final keyPendente = _chavesBlocos[primeiroIndexPendente];
       if (keyPendente?.currentContext != null) {
@@ -115,10 +124,10 @@ class _TelaHistoriaState extends State<TelaHistoria> {
       return;
     }
 
-    // 3. Se tudo foi resolvido, conclui no Firebase e fecha a tela
     _usuarioService.concluirHistoria(
       livroId: widget.livro.id,
       faixaEtaria: widget.faixaEtaria,
+      atividadesConcluidas: _atividadesConcluidas,
     );
     Navigator.pop(context);
   }
@@ -155,28 +164,51 @@ class _TelaHistoriaState extends State<TelaHistoria> {
             final bloco = widget.livro.blocos[index];
 
             if (bloco.tipo == 'texto_imagem') {
+              final String texto = bloco.dados['texto'] ?? '';
+              final String imagemUrl =
+              (bloco.dados['imagem'] ?? bloco.dados['imagemUrl'] ?? '').toString().trim();
+
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  bloco.dados['texto'] ?? '',
-                  style: GoogleFonts.fredoka(
-                    fontSize: 20,
-                    height: 1.6,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.justify,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (imagemUrl.isNotEmpty) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20.0),
+                        child: Image.network(
+                          imagemUrl,
+                          width: double.infinity,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                        ),
+                      ),
+                      if (texto.isNotEmpty) const SizedBox(height: 16.0),
+                    ],
+                    if (texto.isNotEmpty)
+                      Text(
+                        texto,
+                        style: GoogleFonts.fredoka(
+                          fontSize: 20,
+                          height: 1.6,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.justify,
+                      ),
+                  ],
                 ),
               );
             }
 
-            // Envolve as atividades com a chave para localização no scroll
             final Key? widgetKey = _chavesBlocos[index];
+            final bool jaFeita = _atividadesConcluidas.contains(index);
 
             if (bloco.tipo == 'multipla_escolha') {
               return KeyedSubtree(
                 key: widgetKey,
                 child: WidgetMultiplaEscolha(
                   dados: bloco.dados,
+                  jaConcluido: jaFeita,
                   onAcerto: () => _registrarAcerto(index),
                 ),
               );
@@ -187,6 +219,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
                 key: widgetKey,
                 child: WidgetOrdenarElementos(
                   dados: bloco.dados,
+                  jaConcluido: jaFeita,
                   onAcerto: () => _registrarAcerto(index),
                 ),
               );
@@ -197,6 +230,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
                 key: widgetKey,
                 child: WidgetCompletarLacuna(
                   dados: bloco.dados,
+                  jaConcluido: jaFeita,
                   onAcerto: () => _registrarAcerto(index),
                 ),
               );
@@ -207,6 +241,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
                 key: widgetKey,
                 child: WidgetAssociarImagem(
                   dados: bloco.dados,
+                  jaConcluido: jaFeita,
                   onAcerto: () => _registrarAcerto(index),
                 ),
               );

@@ -18,11 +18,13 @@ class ElementoOpcao {
 class WidgetOrdenarElementos extends StatefulWidget {
   final Map dados;
   final VoidCallback? onAcerto;
+  final bool jaConcluido;
 
   const WidgetOrdenarElementos({
     super.key,
     required this.dados,
     this.onAcerto,
+    this.jaConcluido = false,
   });
 
   @override
@@ -33,9 +35,8 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
   List<ElementoOpcao> _bancoOpcoes = [];
   final List<ElementoOpcao> _respostaUsuario = [];
   bool _inicializado = false;
-  bool _concluido = false;
+  late bool _concluido;
 
-  // Sua paleta oficial
   final List<Color> _paletaApp = const [
     Color(0xFFCADD66),
     Color(0xFF7EC6CC),
@@ -47,10 +48,51 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
   @override
   void initState() {
     super.initState();
+    _concluido = widget.jaConcluido;
     _inicializarAtividade();
   }
 
+  @override
+  void didUpdateWidget(covariant WidgetOrdenarElementos oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.jaConcluido && !_concluido) {
+      setState(() {
+        _concluido = true;
+        _preencherRespostaCorretaAutomaticamente();
+      });
+    }
+  }
+
+  void _preencherRespostaCorretaAutomaticamente() {
+    final dynamic respostaCorretaBruta =
+        widget.dados['resposta_certa'] ?? widget.dados['resposta_correta'];
+
+    _respostaUsuario.clear();
+    if (respostaCorretaBruta is List) {
+      for (int i = 0; i < respostaCorretaBruta.length; i++) {
+        _respostaUsuario.add(ElementoOpcao(
+          id: i,
+          texto: respostaCorretaBruta[i].toString(),
+          corTema: _paletaApp[i % _paletaApp.length],
+        ));
+      }
+    } else if (respostaCorretaBruta is String) {
+      _respostaUsuario.add(ElementoOpcao(
+        id: 0,
+        texto: respostaCorretaBruta,
+        corTema: _paletaApp[0],
+      ));
+    }
+    _bancoOpcoes.clear();
+  }
+
   void _inicializarAtividade() {
+    if (_concluido) {
+      _preencherRespostaCorretaAutomaticamente();
+      _inicializado = true;
+      return;
+    }
+
     final List opcoesBrutas = widget.dados['opcoes'] ?? widget.dados['itens'] ?? [];
     final Random random = Random();
 
@@ -129,8 +171,6 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
         children: [
           TextoInstrucao(texto: instrucao),
           const SizedBox(height: 20),
-
-          // Área de Montagem
           Row(
             children: [
               Expanded(
@@ -213,10 +253,7 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
               ]
             ],
           ),
-
           const SizedBox(height: 20),
-
-          // Banco de Opções (Coloridos com baixa opacidade)
           if (!_concluido)
             Wrap(
               alignment: WrapAlignment.center,
@@ -233,7 +270,7 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: item.corTema.withOpacity(0.18),
+                      color: item.corTema.withValues(alpha: .18),
                       borderRadius: BorderRadius.circular(14),
                       border: Border(
                         top: BorderSide(color: item.corTema, width: 2),

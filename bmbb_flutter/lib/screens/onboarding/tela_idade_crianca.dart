@@ -15,9 +15,9 @@ class TelaIdadeCrianca extends StatefulWidget {
 }
 
 class _TelaIdadeCriancaState extends State<TelaIdadeCrianca> {
-  // Gera a lista de idades exatas de 1 a 10
+  //  lista de idades
   final List<int> _idades = List.generate(10, (i) => i + 1);
-  int _idadeSelecionada = 4; // Valor inicial padrão (4 anos)
+  int _idadeSelecionada = 4; // Valor padrão (4 anos)
   bool _salvando = false;
 
   Future<void> _concluirCadastro() async {
@@ -74,7 +74,7 @@ class _TelaIdadeCriancaState extends State<TelaIdadeCrianca> {
             children: [
               const Spacer(),
 
-              // Imagem da cabeça do Boi Bumbá (assets/login/bumbba-head.png)
+              // Imagem da cabeça do Bumbba (assets/login/bumbba-head.png)
               Image.asset(
                 'assets/login/bolo.png',
                 width: 180,

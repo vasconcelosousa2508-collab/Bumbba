@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/livro.dart';
@@ -19,6 +20,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
   @override
   Widget build(BuildContext context) {
     const Color corRosa = Color(0xFFBA149A);
+    final String? uid = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
       appBar: AppBar(
@@ -63,72 +65,105 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
           ),
         ],
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('livros').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Erro ao carregar dados',
-                style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
-              ),
-            );
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: uid != null
+            ? FirebaseFirestore.instance.collection('usuarios').doc(uid).snapshots()
+            : const Stream.empty(),
+        builder: (context, userSnapshot) {
+          Map<String, dynamic> mapaProgresso = {};
+          List<String> historiasConcluidas = [];
 
-          final docs = snapshot.data!.docs;
-
-          if (docs.isEmpty) {
-            return Center(
-              child: Text(
-                'Nenhum livro encontrado',
-                style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
-              ),
-            );
+          if (userSnapshot.hasData && userSnapshot.data!.exists) {
+            final userData = userSnapshot.data!.data() as Map<String, dynamic>?;
+            if (userData?['historias_progresso'] is Map) {
+              mapaProgresso = Map<String, dynamic>.from(userData!['historias_progresso']);
+            }
+            if (userData?['historias_concluidas'] is List) {
+              historiasConcluidas = List<String>.from(userData!['historias_concluidas']);
+            }
           }
 
-          final livros = docs
-              .map((doc) => Livro.fromFirestore(
-            doc.id,
-            doc.data(),
-            faixaEtaria: _faixaSelecionada,
-          ))
-              .where((livro) => livro.temConteudo)
-              .toList();
+          return StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance.collection('livros').snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Erro ao carregar dados',
+                    style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
+                  ),
+                );
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          if (livros.isEmpty) {
-            return Center(
-              child: Text(
-                'Nenhum livro disponível para esta idade',
-                style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
-              ),
-            );
-          }
+              final docs = snapshot.data!.docs;
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16.0,
-                crossAxisSpacing: 16.0,
-                childAspectRatio: 0.72,
-              ),
-              itemCount: livros.length,
-              itemBuilder: (context, index) {
-                return _criarCardLivro(context, livros[index]);
-              },
-            ),
+              if (docs.isEmpty) {
+                return Center(
+                  child: Text(
+                    'Nenhum livro encontrado',
+                    style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
+                  ),
+                );
+              }
+
+              final livros = docs
+                  .map((doc) => Livro.fromFirestore(
+                doc.id,
+                doc.data() as Map,
+                faixaEtaria: _faixaSelecionada,
+              ))
+                  .where((livro) => livro.temConteudo)
+                  .toList();
+
+              if (livros.isEmpty) {
+                return Center(
+                  child: Text(
+                    'Nenhum livro disponível para esta idade',
+                    style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
+                  ),
+                );
+              }
+
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16.0,
+                    crossAxisSpacing: 16.0,
+                    childAspectRatio: 0.66,
+                  ),
+                  itemCount: livros.length,
+                  itemBuilder: (context, index) {
+                    final livro = livros[index];
+                    final String chave = "${livro.id}_$_faixaSelecionada";
+                    final num? valorBruto = mapaProgresso[chave];
+                    double progresso = valorBruto != null ? valorBruto.toDouble() : 0.0;
+
+                    if (historiasConcluidas.contains(chave)) {
+                      progresso = 1.0;
+                    }
+
+                    return _criarCardLivro(context, livro, progresso);
+                  },
+                ),
+              );
+            },
           );
         },
       ),
     );
   }
 
-  Widget _criarCardLivro(BuildContext context, Livro livro) {
+  Widget _criarCardLivro(BuildContext context, Livro livro, double progresso) {
     const Color corRosa = Color(0xFFBA149A);
+    const Color corBarra = Color(0xFF7E98C5);
+
+    final bool mostrarBarra = progresso > 0.0;
+    final int porcentagem = (progresso * 100).round();
 
     return Column(
       children: [
@@ -153,13 +188,56 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
             ),
           ),
         ),
+        if (mostrarBarra) ...[
+          const SizedBox(height: 8.0),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: progresso >= 1.0 ? corRosa : corBarra,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: progresso.clamp(0.0, 1.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: progresso >= 1.0 ? corRosa : corBarra,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8.0),
+              Text(
+                '$porcentagem %',
+                style: GoogleFonts.fredoka(
+                  color: progresso >= 1.0 ? corRosa : corBarra,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 8.0),
         Text(
           livro.titulo,
-          style: const TextStyle(
-            color: Color(0xFFBA149A),
+          style: GoogleFonts.fredoka(
+            color: corRosa,
             fontSize: 16,
             fontWeight: FontWeight.bold,
+            height: 1.2,
           ),
           textAlign: TextAlign.center,
           maxLines: 2,

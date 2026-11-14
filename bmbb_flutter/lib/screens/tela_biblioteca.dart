@@ -261,7 +261,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
         const SizedBox(height: 8.0),
         Text(
           livro.titulo,
-          style: GoogleFonts.fredoka(
+          style: TextStyle(
             color: corRosa,
             fontSize: 16,
             fontWeight: FontWeight.bold,

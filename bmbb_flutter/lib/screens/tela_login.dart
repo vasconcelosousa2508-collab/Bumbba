@@ -66,10 +66,13 @@ class _TelaLoginState extends State<TelaLogin> {
                     )
                   ],
                 ),
-                child: const Icon(
-                  Icons.auto_stories_rounded,
-                  size: 60,
-                  color: corRosa,
+                child: ClipOval(
+                  child: Image.asset(
+                    'assets/Bumbba.png',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
                 ),
               ),
 

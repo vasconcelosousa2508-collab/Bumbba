@@ -164,16 +164,38 @@ class _TelaHistoriaState extends State<TelaHistoria> {
             final bloco = widget.livro.blocos[index];
 
             if (bloco.tipo == 'texto_imagem') {
+              final String texto = bloco.dados['texto'] ?? '';
+              final String imagemUrl =
+              (bloco.dados['imagem'] ?? bloco.dados['imagemUrl'] ?? '').toString().trim();
+
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  bloco.dados['texto'] ?? '',
-                  style: GoogleFonts.fredoka(
-                    fontSize: 20,
-                    height: 1.6,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.justify,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (imagemUrl.isNotEmpty) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20.0),
+                        child: Image.network(
+                          imagemUrl,
+                          width: double.infinity,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+                        ),
+                      ),
+                      if (texto.isNotEmpty) const SizedBox(height: 16.0),
+                    ],
+                    if (texto.isNotEmpty)
+                      Text(
+                        texto,
+                        style: GoogleFonts.fredoka(
+                          fontSize: 20,
+                          height: 1.6,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.justify,
+                      ),
+                  ],
                 ),
               );
             }

@@ -18,6 +18,34 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
   String _faixaSelecionada = '1 a 3';
 
   @override
+  void initState() {
+    super.initState();
+    _carregarFaixaIdadeUsuario();
+  }
+
+  String _mapearIdadeParaFaixa(int idade) {
+    if (idade <= 3) return '1 a 3';
+    if (idade <= 6) return '4 a 6';
+    return '7 a 10';
+  }
+
+  Future<void> _carregarFaixaIdadeUsuario() async {
+    final String? uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    final doc = await FirebaseFirestore.instance.collection('usuarios').doc(uid).get();
+    if (!mounted || !doc.exists) return;
+
+    final data = doc.data();
+    final dynamic idadeRaw = data?['idade_crianca'];
+    if (idadeRaw is num) {
+      setState(() {
+        _faixaSelecionada = _mapearIdadeParaFaixa(idadeRaw.toInt());
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     const Color corRosa = Color(0xFFBA149A);
     final String? uid = FirebaseAuth.instance.currentUser?.uid;
@@ -39,7 +67,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
               onPressed: () async {
                 final resultado = await Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
-                    builder: (context) => const TelaIdade(),
+                    builder: (context) => TelaIdade(faixaInicial: _faixaSelecionada),
                   ),
                 );
 

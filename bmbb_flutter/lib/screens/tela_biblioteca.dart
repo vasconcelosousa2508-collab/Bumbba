@@ -248,6 +248,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
   }
 }
 
+// MODAL CARD
 void _exibirModalConfirmacao(BuildContext context, Livro livro, String faixaEtaria) {
   const Color corRosa = Color(0xFFBA149A);
 

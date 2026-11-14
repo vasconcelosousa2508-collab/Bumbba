@@ -20,8 +20,8 @@ class _TelaIdadeState extends State {
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: corRosa),
-        backgroundColor: Colors.transparent, // Garante fundo transparente
-        scrolledUnderElevation: 0, // Impede que a AppBar mude de cor ao rolar a roleta
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
       ),
       body: SafeArea(
         child: Column(

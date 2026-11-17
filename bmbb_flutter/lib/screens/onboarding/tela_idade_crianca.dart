@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../theme/app_design.dart';
+
 import '../../services/auth_service.dart';
 import '../tela_principal.dart';
 
@@ -52,8 +53,8 @@ class _TelaIdadeCriancaState extends State<TelaIdadeCrianca> {
 
   @override
   Widget build(BuildContext context) {
-    const Color corRosa = Color(0xFFBA149A);
-    const Color corFundo = Color(0xFFFDF4FB);
+    const Color corRosa = AppColors.rosaPrincipal;
+    const Color corFundo = AppColors.rosaClaro;
 
     return Scaffold(
       backgroundColor: corFundo,
@@ -86,7 +87,7 @@ class _TelaIdadeCriancaState extends State<TelaIdadeCrianca> {
               Text(
                 'Qual a idade da\nsua criança?',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.fredoka(
+                style: AppTextStyles.fredoka(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: corRosa,
@@ -117,7 +118,7 @@ class _TelaIdadeCriancaState extends State<TelaIdadeCrianca> {
                         return Center(
                           child: Text(
                             '$idade',
-                            style: GoogleFonts.fredoka(
+                            style: AppTextStyles.fredoka(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
                               color: corRosa,
@@ -130,7 +131,7 @@ class _TelaIdadeCriancaState extends State<TelaIdadeCrianca> {
                   const SizedBox(width: 8),
                   Text(
                     'ANOS',
-                    style: GoogleFonts.fredoka(
+                    style: AppTextStyles.fredoka(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: corRosa,
@@ -157,7 +158,7 @@ class _TelaIdadeCriancaState extends State<TelaIdadeCrianca> {
                       ? const CircularProgressIndicator(color: Colors.white)
                       : Text(
                     'Concluir',
-                    style: GoogleFonts.fredoka(
+                    style: AppTextStyles.fredoka(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,

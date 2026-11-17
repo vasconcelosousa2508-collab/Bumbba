@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_design.dart';
+
 import 'tela_biblioteca.dart';
 import 'tela_perfil.dart';
 
@@ -20,7 +21,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   @override
   Widget build(BuildContext context) {
-    const Color corRosa = Color(0xFFBA149A);
+    const Color corRosa = AppColors.rosaPrincipal;
 
     return Scaffold(
       body: IndexedStack(
@@ -46,8 +47,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           },
           selectedItemColor: corRosa,
           unselectedItemColor: Colors.black38,
-          selectedLabelStyle: GoogleFonts.fredoka(fontWeight: FontWeight.normal, fontSize: 13),
-          unselectedLabelStyle: GoogleFonts.fredoka(fontSize: 12),
+          selectedLabelStyle: AppTextStyles.fredoka(fontWeight: FontWeight.normal, fontSize: 13),
+          unselectedLabelStyle: AppTextStyles.fredoka(fontSize: 12),
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.collections_bookmark),

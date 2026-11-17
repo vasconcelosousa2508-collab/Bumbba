@@ -1,6 +1,9 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import '../../theme/app_design.dart';
+
 import 'componentes_atividade.dart';
 
 class OpcaoLacuna {
@@ -8,11 +11,7 @@ class OpcaoLacuna {
   final String texto;
   final Color corTema;
 
-  OpcaoLacuna({
-    required this.id,
-    required this.texto,
-    required this.corTema,
-  });
+  OpcaoLacuna({required this.id, required this.texto, required this.corTema});
 }
 
 class WidgetCompletarLacuna extends StatefulWidget {
@@ -37,13 +36,7 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
   bool _inicializado = false;
   late bool _concluido;
 
-  final List<Color> _paletaApp = const [
-    Color(0xFFCADD66),
-    Color(0xFF7EC6CC),
-    Color(0xFF814777),
-    Color(0xFFFA8772),
-    Color(0xFFFFD734),
-  ];
+  final List<Color> _paletaApp = AppPalettes.atividade;
 
   @override
   void initState() {
@@ -71,7 +64,10 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
     if (respostaCorretaBruta is int) {
       return opcao.id == respostaCorretaBruta;
     } else {
-      final String valorBanco = respostaCorretaBruta.toString().trim().toUpperCase();
+      final String valorBanco = respostaCorretaBruta
+          .toString()
+          .trim()
+          .toUpperCase();
       final int? indiceConvertido = int.tryParse(valorBanco);
       if (indiceConvertido != null) {
         return opcao.id == indiceConvertido;
@@ -96,11 +92,13 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
     List<OpcaoLacuna> listaTemporaria = [];
     for (int i = 0; i < opcoesBrutas.length; i++) {
       final Color corSorteada = _paletaApp[random.nextInt(_paletaApp.length)];
-      listaTemporaria.add(OpcaoLacuna(
-        id: i,
-        texto: opcoesBrutas[i].toString(),
-        corTema: corSorteada,
-      ));
+      listaTemporaria.add(
+        OpcaoLacuna(
+          id: i,
+          texto: opcoesBrutas[i].toString(),
+          corTema: corSorteada,
+        ),
+      );
     }
     listaTemporaria.shuffle();
 
@@ -143,16 +141,24 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
   Widget build(BuildContext context) {
     if (!_inicializado) return const SizedBox.shrink();
 
-    final String instrucao = widget.dados['instrucao'] ?? widget.dados['instrução'] ?? '';
-    final String textoComLacuna = widget.dados['texto'] ?? widget.dados['texto_com_lacuna'] ?? '';
+    final String instrucao =
+        widget.dados['instrucao'] ?? widget.dados['instrução'] ?? '';
+    final String textoComLacuna =
+        widget.dados['texto'] ?? widget.dados['texto_com_lacuna'] ?? '';
 
     final String textoExibido = _opcaoSelecionada != null
         ? textoComLacuna.replaceAll('_', ' ${_opcaoSelecionada!.texto} ')
         : textoComLacuna.replaceAll('_', ' ___ ');
 
-    final Color corContainerFundo = _concluido ? const Color(0xFFFF8AE8) : Colors.white;
-    final Color corContainerBorda = _concluido ? const Color(0xFFBA149A) : const Color(0xFFE5E5E5);
-    final Color corContainerTexto = _concluido ? const Color(0xFF9C1181) : const Color(0xFF201B21);
+    final Color corContainerFundo = _concluido
+        ? AppColors.rosaFeedback
+        : Colors.white;
+    final Color corContainerBorda = _concluido
+        ? AppColors.rosaPrincipal
+        : AppColors.cinzaBorda;
+    final Color corContainerTexto = _concluido
+        ? AppColors.rosaEscuro
+        : AppColors.cinzaTextoEscuro;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
@@ -179,7 +185,7 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
             ),
             child: Text(
               textoExibido,
-              style: GoogleFonts.fredoka(
+              style: AppTextStyles.fredoka(
                 fontSize: 26,
                 fontWeight: FontWeight.w600,
                 color: corContainerTexto,
@@ -207,7 +213,10 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
                   onTap: () => _selecionarEVerificar(opcao),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 100),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: corFundo,
                       borderRadius: BorderRadius.circular(16),
@@ -215,12 +224,15 @@ class _WidgetCompletarLacunaState extends State<WidgetCompletarLacuna> {
                         top: BorderSide(color: opcao.corTema, width: 2),
                         left: BorderSide(color: opcao.corTema, width: 2),
                         right: BorderSide(color: opcao.corTema, width: 2),
-                        bottom: BorderSide(color: opcao.corTema, width: estaSelecionado ? 2 : 4),
+                        bottom: BorderSide(
+                          color: opcao.corTema,
+                          width: estaSelecionado ? 2 : 4,
+                        ),
                       ),
                     ),
                     child: Text(
                       opcao.texto,
-                      style: GoogleFonts.fredoka(
+                      style: AppTextStyles.fredoka(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                         color: corTexto,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_design.dart';
 
 class TextoInstrucao extends StatelessWidget {
   final String texto;
@@ -8,11 +8,11 @@ class TextoInstrucao extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color corRosa = Color(0xFFBA149A);
+    const Color corRosa = AppColors.rosaPrincipal;
 
     return Text(
       texto,
-      style: GoogleFonts.fredoka(
+      style: AppTextStyles.fredoka(
         fontSize: 22,
         color: corRosa,
         fontWeight: FontWeight.w500,
@@ -27,7 +27,7 @@ void exibirFeedbackPadrao({
   required bool acertou,
   required VoidCallback onAoFechar,
 }) {
-  const Color corRosa = Color(0xFFBA149A);
+  const Color corRosa = AppColors.rosaPrincipal;
 
   showModalBottomSheet(
     context: context,
@@ -38,7 +38,7 @@ void exibirFeedbackPadrao({
     builder: (context) {
       return Container(
         width: double.infinity,
-        color: acertou ? const Color(0xFF7EC6CC) : const Color(0xFFFA8772),
+        color: acertou ? AppColors.turquesa : AppColors.coral,
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -46,7 +46,7 @@ void exibirFeedbackPadrao({
           children: [
             Text(
               acertou ? 'Muito bem! Você acertou!' : 'Vish! Tente novamente.',
-              style: GoogleFonts.fredoka(
+              style: AppTextStyles.fredoka(
                 fontSize: 22,
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -71,7 +71,7 @@ void exibirFeedbackPadrao({
                 },
                 child: Text(
                   acertou ? 'CONTINUAR' : 'TENTAR NOVAMENTE',
-                  style: GoogleFonts.fredoka(
+                  style: AppTextStyles.fredoka(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
                   ),

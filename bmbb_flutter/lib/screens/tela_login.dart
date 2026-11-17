@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_design.dart';
+
 import '../services/auth_service.dart';
 
 class TelaLogin extends StatefulWidget {
@@ -29,7 +30,7 @@ class _TelaLoginState extends State<TelaLogin> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao fazer login: $e'),
-            backgroundColor: const Color(0xFFFA8772),
+            backgroundColor: AppColors.coral,
           ),
         );
       }
@@ -38,8 +39,8 @@ class _TelaLoginState extends State<TelaLogin> {
 
   @override
   Widget build(BuildContext context) {
-    const Color corRosa = Color(0xFFBA149A);
-    const Color corFundo = Color(0xFFFDF4FB);
+    const Color corRosa = AppColors.rosaPrincipal;
+    const Color corFundo = AppColors.rosaClaro;
 
     return Scaffold(
       backgroundColor: corFundo,
@@ -60,7 +61,7 @@ class _TelaLoginState extends State<TelaLogin> {
                   border: Border.all(color: corRosa, width: 3),
                   boxShadow: const [
                     BoxShadow(
-                      color: Color(0x11BA149A),
+                      color: AppColors.rosaTransparente,
                       blurRadius: 16,
                       offset: Offset(0, 8),
                     )
@@ -81,7 +82,7 @@ class _TelaLoginState extends State<TelaLogin> {
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: GoogleFonts.fredoka(
+                  style: AppTextStyles.fredoka(
                     fontSize: 32,
                     fontWeight: FontWeight.w400,
                     color: corRosa,
@@ -103,7 +104,7 @@ class _TelaLoginState extends State<TelaLogin> {
 
               Text(
                 'Entre para salvar seu progresso e continuar suas leituras em qualquer lugar.',
-                style: GoogleFonts.fredoka(
+                style: AppTextStyles.fredoka(
                   fontSize: 16,
                   color: Colors.black54,
                 ),
@@ -122,7 +123,7 @@ class _TelaLoginState extends State<TelaLogin> {
                     elevation: 2,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
-                      side: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                      side: const BorderSide(color: AppColors.cinzaCampo, width: 1.5),
                     ),
                   ),
                   onPressed: _carregando ? null : _fazerLoginGoogle,
@@ -139,7 +140,7 @@ class _TelaLoginState extends State<TelaLogin> {
                       const SizedBox(width: 8),
                       Text(
                         'Entrar com o Google',
-                        style: GoogleFonts.fredoka(
+                        style: AppTextStyles.fredoka(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),

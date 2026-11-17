@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_design.dart';
 
 import '../models/livro.dart';
 import 'tela_historia.dart';
@@ -47,14 +47,14 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
 
   @override
   Widget build(BuildContext context) {
-    const Color corRosa = Color(0xFFBA149A);
+    const Color corRosa = AppColors.rosaPrincipal;
     final String? uid = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Biblioteca',
-          style: GoogleFonts.fredoka(
+          style: AppTextStyles.fredoka(
             color: corRosa,
             fontSize: 30.0,
             fontWeight: FontWeight.bold,
@@ -87,7 +87,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
               icon: const Icon(Icons.keyboard_arrow_down, size: 18),
               label: Text(
                 '$_faixaSelecionada anos',
-                style: GoogleFonts.fredoka(fontSize: 14, fontWeight: FontWeight.w500),
+                style: AppTextStyles.fredoka(fontSize: 14, fontWeight: FontWeight.w500),
               ),
             ),
           ),
@@ -118,7 +118,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
                 return Center(
                   child: Text(
                     'Erro ao carregar dados',
-                    style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
+                    style: AppTextStyles.fredoka(fontSize: 16, color: Colors.black54),
                   ),
                 );
               }
@@ -132,7 +132,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
                 return Center(
                   child: Text(
                     'Nenhum livro encontrado',
-                    style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
+                    style: AppTextStyles.fredoka(fontSize: 16, color: Colors.black54),
                   ),
                 );
               }
@@ -150,7 +150,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
                 return Center(
                   child: Text(
                     'Nenhum livro disponível para esta idade',
-                    style: GoogleFonts.fredoka(fontSize: 16, color: Colors.black54),
+                    style: AppTextStyles.fredoka(fontSize: 16, color: Colors.black54),
                   ),
                 );
               }
@@ -187,8 +187,8 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
   }
 
   Widget _criarCardLivro(BuildContext context, Livro livro, double progresso) {
-    const Color corRosa = Color(0xFFBA149A);
-    const Color corBarra = Color(0xFF7E98C5);
+    const Color corRosa = AppColors.rosaPrincipal;
+    const Color corBarra = AppColors.azulBarraProgresso;
 
     final bool mostrarBarra = progresso > 0.0;
     final int porcentagem = (progresso * 100).round();
@@ -249,7 +249,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
               const SizedBox(width: 8.0),
               Text(
                 '$porcentagem %',
-                style: GoogleFonts.fredoka(
+                style: AppTextStyles.fredoka(
                   color: progresso >= 1.0 ? corRosa : corBarra,
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
@@ -278,7 +278,7 @@ class _TelaBibliotecaState extends State<TelaBiblioteca> {
 
 // MODAL CARD
 void _exibirModalConfirmacao(BuildContext context, Livro livro, String faixaEtaria) {
-  const Color corRosa = Color(0xFFBA149A);
+  const Color corRosa = AppColors.rosaPrincipal;
 
   showModalBottomSheet(
     context: context,
@@ -297,7 +297,7 @@ void _exibirModalConfirmacao(BuildContext context, Livro livro, String faixaEtar
           children: [
             Text(
               'Quer iniciar\nleitura?',
-              style: GoogleFonts.fredoka(
+              style: AppTextStyles.fredoka(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
                 color: corRosa,
@@ -328,7 +328,7 @@ void _exibirModalConfirmacao(BuildContext context, Livro livro, String faixaEtar
             const SizedBox(height: 16),
             Text(
               livro.titulo,
-              style: GoogleFonts.fredoka(
+              style: AppTextStyles.fredoka(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: corRosa,
@@ -361,7 +361,7 @@ void _exibirModalConfirmacao(BuildContext context, Livro livro, String faixaEtar
                 },
                 child: Text(
                   'Vamos lá!',
-                  style: GoogleFonts.fredoka(
+                  style: AppTextStyles.fredoka(
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
                   ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_design.dart';
+
 import 'tela_idade_crianca.dart';
 
 class TelaNomeCrianca extends StatefulWidget {
@@ -24,9 +25,9 @@ class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
         SnackBar(
           content: Text(
             'Por favor, digite o nome da criança.',
-            style: GoogleFonts.fredoka(),
+            style: AppTextStyles.fredoka(),
           ),
-          backgroundColor: const Color(0xFFBA149A),
+          backgroundColor: AppColors.rosaPrincipal,
         ),
       );
       return;
@@ -44,8 +45,8 @@ class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
 
   @override
   Widget build(BuildContext context) {
-    const Color corRosa = Color(0xFFBA149A);
-    const Color corFundo = Color(0xFFFDF4FB);
+    const Color corRosa = AppColors.rosaPrincipal;
+    const Color corFundo = AppColors.rosaClaro;
 
     return Scaffold(
       backgroundColor: corFundo,
@@ -66,7 +67,7 @@ class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
               Text(
                 'Qual o nome da\nsua criança?',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.fredoka(
+                style: AppTextStyles.fredoka(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: corRosa,
@@ -79,10 +80,10 @@ class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
                 textAlign: TextAlign.center,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _avancar(),
-                style: GoogleFonts.fredoka(fontSize: 20, color: Colors.black87),
+                style: AppTextStyles.fredoka(fontSize: 20, color: Colors.black87),
                 decoration: InputDecoration(
                   hintText: 'Digite um nome',
-                  hintStyle: GoogleFonts.fredoka(color: Colors.black38),
+                  hintStyle: AppTextStyles.fredoka(color: Colors.black38),
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -92,7 +93,7 @@ class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
-                    borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
+                    borderSide: const BorderSide(color: AppColors.cinzaCampo, width: 1.5),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
@@ -115,7 +116,7 @@ class _TelaNomeCriancaState extends State<TelaNomeCrianca> {
                   onPressed: _avancar,
                   child: Text(
                     'Continuar',
-                    style: GoogleFonts.fredoka(
+                    style: AppTextStyles.fredoka(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,

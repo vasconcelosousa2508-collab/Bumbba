@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_design.dart';
 
 import '../models/livro.dart';
 import '../services/usuario_service.dart';
@@ -110,10 +110,10 @@ class _TelaHistoriaState extends State<TelaHistoria> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          backgroundColor: const Color(0xFFFA8772),
+          backgroundColor: AppColors.coral,
           content: Text(
             'Opa! Ainda tem atividade pendente!',
-            style: GoogleFonts.fredoka(fontSize: 18, color: Colors.white),
+            style: AppTextStyles.fredoka(fontSize: 18, color: Colors.white),
             textAlign: TextAlign.center,
           ),
           duration: const Duration(seconds: 3),
@@ -134,7 +134,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
 
   @override
   Widget build(BuildContext context) {
-    const Color corRosa = Color(0xFFBA149A);
+    const Color corRosa = AppColors.rosaPrincipal;
 
     return Scaffold(
       appBar: AppBar(
@@ -146,7 +146,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
         ),
         title: Text(
           widget.livro.titulo,
-          style: GoogleFonts.fredoka(
+          style: AppTextStyles.fredoka(
             color: corRosa,
             fontSize: 22.0,
             fontWeight: FontWeight.w500,
@@ -188,7 +188,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
                     if (texto.isNotEmpty)
                       Text(
                         texto,
-                        style: GoogleFonts.fredoka(
+                        style: AppTextStyles.fredoka(
                           fontSize: 20,
                           height: 1.6,
                           color: Colors.black87,
@@ -255,7 +255,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
           child: SingleChildScrollView(
             child: Text(
               widget.livro.historiaTexto,
-              style: GoogleFonts.fredoka(
+              style: AppTextStyles.fredoka(
                 fontSize: 20,
                 height: 1.6,
                 color: Colors.black87,
@@ -292,7 +292,7 @@ class _TelaHistoriaState extends State<TelaHistoria> {
                   children: [
                     Text(
                       'Concluir História',
-                      style: GoogleFonts.fredoka(
+                      style: AppTextStyles.fredoka(
                         fontSize: 20,
                         fontWeight: _todasConcluidas ? FontWeight.bold : FontWeight.w500,
                       ),

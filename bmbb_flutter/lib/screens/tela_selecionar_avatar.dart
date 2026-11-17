@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../theme/app_design.dart';
 
 class TelaSelecionarAvatar extends StatefulWidget {
   final String uid;
@@ -50,9 +50,9 @@ class _TelaSelecionarAvatarState extends State<TelaSelecionarAvatar> {
           SnackBar(
             content: Text(
               'Erro ao salvar avatar. Tente novamente.',
-              style: GoogleFonts.fredoka(),
+              style: AppTextStyles.fredoka(),
             ),
-            backgroundColor: const Color(0xFFFA8772),
+            backgroundColor: AppColors.coral,
           ),
         );
       }
@@ -61,8 +61,8 @@ class _TelaSelecionarAvatarState extends State<TelaSelecionarAvatar> {
 
   @override
   Widget build(BuildContext context) {
-    const Color corRosa = Color(0xFFBA149A);
-    const Color corFundo = Color(0xFFFDF4FB);
+    const Color corRosa = AppColors.rosaPrincipal;
+    const Color corFundo = AppColors.rosaClaro;
 
     return Scaffold(
       backgroundColor: corFundo,
@@ -93,7 +93,7 @@ class _TelaSelecionarAvatarState extends State<TelaSelecionarAvatar> {
                       return Center(
                         child: Text(
                           'Erro ao carregar os avatares.',
-                          style: GoogleFonts.fredoka(color: Colors.black54, fontSize: 16),
+                          style: AppTextStyles.fredoka(color: Colors.black54, fontSize: 16),
                         ),
                       );
                     }
@@ -108,7 +108,7 @@ class _TelaSelecionarAvatarState extends State<TelaSelecionarAvatar> {
                       return Center(
                         child: Text(
                           'Nenhum avatar disponível.',
-                          style: GoogleFonts.fredoka(color: Colors.black54, fontSize: 16),
+                          style: AppTextStyles.fredoka(color: Colors.black54, fontSize: 16),
                         ),
                       );
                     }
@@ -149,7 +149,7 @@ class _TelaSelecionarAvatarState extends State<TelaSelecionarAvatar> {
                                 color: Colors.white,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Color(0x18000000),
+                                    color: AppColors.sombra,
                                     blurRadius: 8,
                                     offset: Offset(0, 4),
                                   ),
@@ -162,11 +162,11 @@ class _TelaSelecionarAvatarState extends State<TelaSelecionarAvatar> {
                                   loadingBuilder: (context, child, loadingProgress) {
                                     if (loadingProgress == null) return child;
                                     return Container(
-                                      color: const Color(0xFFD9D9D9),
+                                      color: AppColors.cinzaClaro,
                                     );
                                   },
                                   errorBuilder: (context, error, stackTrace) => Container(
-                                    color: const Color(0xFFD9D9D9),
+                                    color: AppColors.cinzaClaro,
                                     child: const Icon(Icons.person, color: corRosa, size: 42),
                                   ),
                                 ),
@@ -198,7 +198,7 @@ class _TelaSelecionarAvatarState extends State<TelaSelecionarAvatar> {
                       ? const CircularProgressIndicator(color: Colors.white)
                       : Text(
                     'Selecionar',
-                    style: GoogleFonts.fredoka(
+                    style: AppTextStyles.fredoka(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,

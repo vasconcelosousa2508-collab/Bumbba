@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_design.dart';
 
 class TelaIdade extends StatefulWidget {
   final String faixaInicial;
@@ -35,7 +35,7 @@ class _TelaIdadeState extends State<TelaIdade> {
 
   @override
   Widget build(BuildContext context) {
-    const Color corRosa = Color(0xFFBA149A);
+    const Color corRosa = AppColors.rosaPrincipal;
 
     return Scaffold(
       appBar: AppBar(
@@ -66,7 +66,7 @@ class _TelaIdadeState extends State<TelaIdade> {
                       return Center(
                         child: Text(
                           item,
-                          style: GoogleFonts.fredoka(
+                          style: AppTextStyles.fredoka(
                             fontSize: 36,
                             color: corRosa,
                           ),
@@ -78,7 +78,7 @@ class _TelaIdadeState extends State<TelaIdade> {
                 const SizedBox(width: 12),
                 Text(
                   'ANOS',
-                  style: GoogleFonts.fredoka(
+                  style: AppTextStyles.fredoka(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
                     color: corRosa,
@@ -107,7 +107,7 @@ class _TelaIdadeState extends State<TelaIdade> {
                   ),
                   child: Text(
                     'Selecionar Idade',
-                    style: GoogleFonts.fredoka(
+                    style: AppTextStyles.fredoka(
                       fontSize: 20,
                       fontWeight: FontWeight.w500,
                     ),

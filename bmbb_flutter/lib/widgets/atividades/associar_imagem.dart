@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_design.dart';
+
 import 'componentes_atividade.dart';
 
 class OpcaoAssociacao {
@@ -37,13 +38,7 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
   bool _inicializado = false;
   late bool _concluido;
 
-  final List<Color> _paletaVibrante = const [
-    Color(0xFF88C838),
-    Color(0xFF1CB0F6),
-    Color(0xFFFF4B4B),
-    Color(0xFFFFC800),
-    Color(0xFFCE82FF),
-  ];
+  final List<Color> _paletaVibrante = AppPalettes.associarImagem;
 
   @override
   void initState() {
@@ -161,10 +156,10 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Text(
                 textoCentral.toLowerCase(),
-                style: GoogleFonts.fredoka(
+                style: AppTextStyles.fredoka(
                   fontSize: 42,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF3C3C3C),
+                  color: AppColors.cinzaImagem,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -178,10 +173,10 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+                border: Border.all(color: AppColors.cinzaBorda, width: 2),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color(0x0F000000),
+                    color: AppColors.sombraClara,
                     blurRadius: 10,
                     offset: Offset(0, 4),
                   )
@@ -215,11 +210,11 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
                 final bool ehCorretaEConcluida = _concluido && estaSelecionado;
 
                 final Color corFundo = ehCorretaEConcluida
-                    ? const Color(0xFFFF8AE8)
-                    : (estaSelecionado ? const Color(0xFFC9E1F0) : Colors.white);
+                    ? AppColors.rosaFeedback
+                    : (estaSelecionado ? AppColors.azulSelecao : Colors.white);
                 final Color corBorda = ehCorretaEConcluida
-                    ? const Color(0xFFBA149A)
-                    : (estaSelecionado ? const Color(0xFF1CB0F6) : const Color(0xFFE5E5E5));
+                    ? AppColors.rosaPrincipal
+                    : (estaSelecionado ? AppColors.azulAtividade : AppColors.cinzaBorda);
 
                 return GestureDetector(
                   onTap: () => _selecionarEVerificar(opcao),
@@ -258,14 +253,14 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
                 final bool ehCorretaEConcluida = _concluido && estaSelecionado;
 
                 final Color corFundo = ehCorretaEConcluida
-                    ? const Color(0xFFFF8AE8)
-                    : (estaSelecionado ? const Color(0xFFC9E1F0) : Colors.white);
+                    ? AppColors.rosaFeedback
+                    : (estaSelecionado ? AppColors.azulSelecao : Colors.white);
                 final Color corBorda = ehCorretaEConcluida
-                    ? const Color(0xFFBA149A)
-                    : (estaSelecionado ? const Color(0xFF1CB0F6) : const Color(0xFFE5E5E5));
+                    ? AppColors.rosaPrincipal
+                    : (estaSelecionado ? AppColors.azulAtividade : AppColors.cinzaBorda);
                 final Color corTexto = ehCorretaEConcluida
-                    ? const Color(0xFF9C1181)
-                    : (estaSelecionado ? const Color(0xFF1CB0F6) : const Color(0xFF4B4B4B));
+                    ? AppColors.rosaEscuro
+                    : (estaSelecionado ? AppColors.azulAtividade : AppColors.cinzaTexto);
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
@@ -293,7 +288,7 @@ class _WidgetAssociarImagemState extends State<WidgetAssociarImagem> {
                       child: Text(
                         opcao.valor,
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.fredoka(
+                        style: AppTextStyles.fredoka(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: corTexto,

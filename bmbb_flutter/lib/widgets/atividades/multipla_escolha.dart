@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_design.dart';
+
 import 'componentes_atividade.dart';
 
 class WidgetMultiplaEscolha extends StatefulWidget {
@@ -80,14 +81,14 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
             final bool ehCorretaEConcluida = _concluido && index == respostaCerta;
 
             final Color corFundo = ehCorretaEConcluida
-                ? const Color(0xFFFF8AE8)
-                : (estaSelecionado ? const Color(0xFFC9E1F0) : Colors.white);
+                ? AppColors.rosaFeedback
+                : (estaSelecionado ? AppColors.azulSelecao : Colors.white);
             final Color corBorda = ehCorretaEConcluida
-                ? const Color(0xFFBA149A)
-                : (estaSelecionado ? const Color(0xFF1CB0F6) : const Color(0xFFE5E5E5));
+                ? AppColors.rosaPrincipal
+                : (estaSelecionado ? AppColors.azulAtividade : AppColors.cinzaBorda);
             final Color corTexto = ehCorretaEConcluida
-                ? const Color(0xFF9C1181)
-                : (estaSelecionado ? const Color(0xFF1CB0F6) : const Color(0xFF4B4B4B));
+                ? AppColors.rosaEscuro
+                : (estaSelecionado ? AppColors.azulAtividade : AppColors.cinzaTexto);
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
@@ -115,7 +116,7 @@ class _WidgetMultiplaEscolhaState extends State<WidgetMultiplaEscolha> {
                   child: Text(
                     opcoes[index].toString(),
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.fredoka(
+                    style: AppTextStyles.fredoka(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: corTexto,

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_design.dart';
+
 import 'componentes_atividade.dart';
 
 class ElementoOpcao {
@@ -37,13 +38,7 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
   bool _inicializado = false;
   late bool _concluido;
 
-  final List<Color> _paletaApp = const [
-    Color(0xFFCADD66),
-    Color(0xFF7EC6CC),
-    Color(0xFF814777),
-    Color(0xFFFA8772),
-    Color(0xFFFFD734),
-  ];
+  final List<Color> _paletaApp = AppPalettes.atividade;
 
   @override
   void initState() {
@@ -161,8 +156,8 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
 
     final String instrucao = widget.dados['instrucao'] ?? widget.dados['instrução'] ?? '';
 
-    final Color corCaixaFundo = _concluido ? const Color(0xFFFF8AE8) : Colors.white;
-    final Color corCaixaBorda = _concluido ? const Color(0xFFBA149A) : const Color(0xFFE5E5E5);
+    final Color corCaixaFundo = _concluido ? AppColors.rosaFeedback : Colors.white;
+    final Color corCaixaBorda = _concluido ? AppColors.rosaPrincipal : AppColors.cinzaBorda;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
@@ -208,16 +203,16 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
                             color: _concluido ? Colors.white : item.corTema,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: _concluido ? const Color(0xFFBA149A) : item.corTema,
+                              color: _concluido ? AppColors.rosaPrincipal : item.corTema,
                               width: 2,
                             ),
                           ),
                           child: Text(
                             item.texto,
-                            style: GoogleFonts.fredoka(
+                            style: AppTextStyles.fredoka(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
-                              color: _concluido ? const Color(0xFF9C1181) : Colors.white,
+                              color: _concluido ? AppColors.rosaEscuro : Colors.white,
                             ),
                           ),
                         ),
@@ -235,13 +230,13 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
                     width: 56,
                     decoration: BoxDecoration(
                       color: _respostaUsuario.isNotEmpty
-                          ? const Color(0xFF814777)
+                          ? AppColors.roxo
                           : Colors.grey[300],
                       borderRadius: BorderRadius.circular(16),
                       border: Border(
                         bottom: BorderSide(
                           color: _respostaUsuario.isNotEmpty
-                              ? const Color(0xFF52284D)
+                              ? AppColors.roxoEscuro
                               : Colors.grey[400]!,
                           width: 4,
                         ),
@@ -281,7 +276,7 @@ class _WidgetOrdenarElementosState extends State<WidgetOrdenarElementos> {
                     ),
                     child: Text(
                       item.texto,
-                      style: GoogleFonts.fredoka(
+                      style: AppTextStyles.fredoka(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: item.corTema,

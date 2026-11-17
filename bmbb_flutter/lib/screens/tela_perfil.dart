@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../theme/app_design.dart';
 
 import '../models/livro.dart';
 import '../services/auth_service.dart';
@@ -68,8 +68,8 @@ class TelaPerfil extends StatelessWidget {
     required List<_ItemProgressoPerfil> itens,
     required bool mostrarBarra,
   }) {
-    const Color corRosa = Color(0xFFBA149A);
-    const Color corBarra = Color(0xFF7E98C5);
+    const Color corRosa = AppColors.rosaPrincipal;
+    const Color corBarra = AppColors.azulBarraProgresso;
 
     if (itens.isEmpty) return const SizedBox.shrink();
 
@@ -79,7 +79,7 @@ class TelaPerfil extends StatelessWidget {
         const SizedBox(height: 28),
         Text(
           titulo,
-          style: GoogleFonts.fredoka(
+          style: AppTextStyles.fredoka(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             color: corRosa,
@@ -143,7 +143,7 @@ class TelaPerfil extends StatelessWidget {
                                   ),
                                   child: Text(
                                     '${item.faixaEtaria}a',
-                                    style: GoogleFonts.fredoka(
+                                    style: AppTextStyles.fredoka(
                                       color: Colors.white,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w500,
@@ -186,7 +186,7 @@ class TelaPerfil extends StatelessWidget {
                           const SizedBox(width: 6),
                           Text(
                             '$porcentagem%',
-                            style: GoogleFonts.fredoka(
+                            style: AppTextStyles.fredoka(
                               color: corBarra,
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
@@ -198,7 +198,7 @@ class TelaPerfil extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       item.livro.titulo,
-                      style: GoogleFonts.fredoka(
+                      style: const TextStyle(
                         color: corRosa,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -223,9 +223,9 @@ class TelaPerfil extends StatelessWidget {
     final AuthService authService = AuthService();
     final usuario = authService.usuarioAtual;
 
-    const Color corRosa = Color(0xFFBA149A);
-    const Color corFundo = Color(0xFFFDF4FB);
-    const Color corTurquesa = Color(0xFF7BC4C4);
+    const Color corRosa = AppColors.rosaPrincipal;
+    const Color corFundo = AppColors.rosaClaro;
+    const Color corTurquesa = AppColors.turquesaAlternativa;
 
     if (usuario == null) {
       return const Scaffold(
@@ -238,7 +238,7 @@ class TelaPerfil extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Seu Perfil',
-          style: GoogleFonts.fredoka(
+          style: AppTextStyles.fredoka(
             color: corRosa,
             fontWeight: FontWeight.bold,
             fontSize: 30,
@@ -366,7 +366,7 @@ class TelaPerfil extends StatelessWidget {
                                 color: Colors.white,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Color(0x18000000),
+                                    color: AppColors.sombra,
                                     blurRadius: 12,
                                     offset: Offset(0, 6),
                                   ),
@@ -388,7 +388,7 @@ class TelaPerfil extends StatelessWidget {
                                   border: Border.all(color: corTurquesa, width: 3.5),
                                   boxShadow: const [
                                     BoxShadow(
-                                      color: Color(0x14000000),
+                                      color: AppColors.sombraAlternativa,
                                       blurRadius: 6,
                                       offset: Offset(0, 2),
                                     ),
@@ -412,7 +412,7 @@ class TelaPerfil extends StatelessWidget {
                     Text(
                       nomeCrianca,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.fredoka(
+                      style: AppTextStyles.fredoka(
                         fontSize: 32,
                         color: corRosa,
                         height: 1.1,
@@ -425,7 +425,7 @@ class TelaPerfil extends StatelessWidget {
                     Text(
                       '$idadeCrianca anos',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.fredoka(
+                      style: AppTextStyles.fredoka(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
                         color: Colors.black45,
@@ -464,7 +464,7 @@ class TelaPerfil extends StatelessWidget {
                         children: [
                           Text(
                             'DADOS DO RESPONSÁVEL',
-                            style: GoogleFonts.fredoka(
+                            style: AppTextStyles.fredoka(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: Colors.black45,
@@ -479,7 +479,7 @@ class TelaPerfil extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   nomeResponsavel,
-                                  style: GoogleFonts.fredoka(
+                                  style: AppTextStyles.fredoka(
                                     fontSize: 16,
                                     color: Colors.black87,
                                     fontWeight: FontWeight.w500,
@@ -496,7 +496,7 @@ class TelaPerfil extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   emailResponsavel,
-                                  style: GoogleFonts.fredoka(
+                                  style: AppTextStyles.fredoka(
                                     fontSize: 14,
                                     color: Colors.black54,
                                   ),
